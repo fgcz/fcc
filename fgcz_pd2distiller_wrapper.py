@@ -3,7 +3,6 @@
 # $Date: 2015-04-14 08:53:01 +0200 (Tue, 14 Apr 2015) $
 # $Author: cpanse $
 
-
 from random import randint
 import sys
 import shutil
@@ -30,6 +29,9 @@ class FgczProteinDiscovererWrapper(object):
         self.para['tempPath'] = "E:/pd_temp/"
         # todo(cp); use tf = tempfile.NamedTemporaryFile()
         self.para['randomName'] = str(randint(0, 100000))
+        self.para['cmd'] = "D:\\Program Files\\Thermo/Discoverer Daemon 1.4\\System/Release\\DiscovererDaemon.exe" 
+        self.para['cmdParaFile'] = "C:\\FGCZ\\fcc\\proteomeDiscoverer\\thermo_standard_mgf_conversion_deconvulution_test.param"
+
         try:
             pass
         except:
@@ -46,23 +48,19 @@ class FgczProteinDiscovererWrapper(object):
 
     def run(self):
         self.para['intermediateFile'] = "{0}/{1}.raw".format(self.para['tempPath'], self.para['randomName']) 
-        self.para['cmd'] = "D:/Program Files/Thermo/Discoverer Daemon 1.4/System/Release/DiscovererDaemon.exe" 
-        self.para['cmdPara'] = "-p C:\\FGCZ\\fcc\\proteomeDiscoverer/{0} {1}".format(self.para['pdParamFile'], self.para['intermediateFile'])
+        try:
+            shutil.copy(self.para['inputFile'], self.para['intermediateFile']) 
+        except OSError as e:
+            print("{} could not be copied into {}! Error {} occured".format(inputFile, tempPath, e))
+            raise
 
-#    try:
-#        shutil.copy(inputFile, intermediateFile) 
-#    except OSError as e:
-#        print("{} could not be copied into {}! Error {} occured".format(inputFile, tempPath, e))
-#        sys.exit()
-#            
-#    myCommand = r'"D:\\Program Files\\Thermo\Discoverer Daemon 1.4\\System\\Release\\DiscovererDaemon.exe" -p C:\\FGCZ\\fcc\\proteomeDiscoverer\\{1} {2}'.format(pdParamFile, intermediateFile)
-#
-#    try:
-#        os.system(myCommand)
-#        print("{} succeeded. {} has been converted.".format(myCommand, inputFile))
-#    except OSError as e:
-#        print("{} failed!. {} has NOT been converted. Error {} occured".format(myCommand, inputFile, e))
-#        sys.exit(1)
+        try:
+            os.system("{0} -p {1}".format(self.para['cmd'], self.para['cmdParaFile']))
+            print("{} succeeded. {} has been converted.".format(myCommand, inputFile))
+        except OSError as e:
+            print("{} failed!. {} has NOT been converted. Error {} occured".format(myCommand, inputFile, e))
+            raise
+
 
     def replaceTitle(self, spectrumFile):
         """
@@ -144,14 +142,11 @@ if __name__ == "__main__":
     #inputFile=sys.argv[3]
     #outputFile=sys.argv[4]
     PD = FgczProteinDiscovererWrapper()
-    PD.set_para('fileExtension', sys.argv[1])
-    PD.set_para('pdParamFile', sys.argv[2])
-    PD.set_para('inputFile', sys.argv[3])
-    PD.set_para('outputFile', sys.argv[4])
+    PD.set_para('inputFile', sys.argv[1])
+    PD.set_para('outputFile', sys.argv[2])
     PD.run()
     PD.print_para()
 
-    print "HELLO"
     sys.exit(0)
 
 #
