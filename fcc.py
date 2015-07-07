@@ -96,10 +96,12 @@ HISTORY
     2012-06-19 cleaning the code (CP) revision 3423
     2012-06-28 switched to os.walk for the crawler methode (CP)
     2012-12-04 handles dirs as files, e.g. conversion of waters.com instruments raw folders (SB,CP)
+    2015-07-07 on github.com
 """
 __version__ = "http://fgcz-svn.uzh.ch/repos/fgcz/stable/proteomics/fcc/fcc.py"
 
 import os
+import urllib
 import signal
 import platform
 import socket
@@ -163,30 +165,24 @@ class FgczCrawl(object):
         return self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
 
 
-configFileName = "fcc_config.xml"
+
 myProcessId = os.getpid()
 myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
-logger = logging.getLogger('fcc')
 hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
 formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-configFileName="fcc_config.xml"
+hdlr_syslog.setFormatter(formatter)
+logger = logging.getLogger('fcc')
+logger.addHandler(hdlr_syslog)
+logger.setLevel(logging.INFO)
+
+#configFileName="fcc_config.xml"
+
+config_url="http://fgcz-s-021.uzh.ch/config/fcc_config.xml"
+
 myProcessId=os.getpid()
 myHostname=str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
-logFileName="\\\\fgcz-proteomics.uzh.ch\\Data2San\\fcc_LOGS\\fcc__." + myHostname + ".log"
-
-logger = logging.getLogger('fcc')
-hdlr = logging.FileHandler(logFileName)
-hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
-
-formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-#hdlr.setFormatter(formatter)
-hdlr_syslog.setFormatter(formatter)
- 
-#logger.addHandler(hdlr)
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
 
 def signal_handler(signal, frame):
     logger.error( ( "sys exit 1; signal=" + str(signal)+ "; frame="+str(frame)) )
@@ -335,7 +331,8 @@ def matchFileToRules(fileDetails, rulesList):
     return matchedRules
 
 def createSystemBatch(fromFileName, toFileName, converter):
-    return "{0} {1} {2} {3}".format(converter["converterCmd"], converter["converterOptions"], fromFileName,  toFileName)
+    return "{0} {1} {2} {3}".format(converter["converterCmd"],
+                                    converter["converterOptions"], fromFileName,  toFileName)
      
 def usage():
     pass
@@ -346,11 +343,11 @@ if __name__ == "__main__":
     myOutputFile=None
     myDebugLevel=0
     mySleep=300
-    myPattern=".*"
-    myLoop=None
+    myPattern = ".*"
+    myLoop=False
     matchingRules = list()
     converterOutputs = list()
-    myExecFlag=0
+    myExecFlag = False
     nCPU = None   
 
     logger.info("fcc started ...")
@@ -359,7 +356,8 @@ if __name__ == "__main__":
     pattern_list = ['/srv/www/htdocs/Data2San/', 
         'p[0-9]{2,4}', 'Metabolomics', 
         '(GCT)_[0-9]', 
-        '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}', '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
+        '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
+                    '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
 
     myFgczCrawler = FgczCrawl(pattern=pattern_list)
     # to save MD5 of all considered commandline 
@@ -376,9 +374,9 @@ if __name__ == "__main__":
         if o == "--output":
             myOutputFile=value
         elif o == "--exec":
-            myExecFlag=1
+            myExecFlag = True
         elif o == "--loop":
-            myLoop=1
+            myLoop=True
         elif o == "--pattern":
             myPattern=value
         elif o == "--hostname":
@@ -407,7 +405,7 @@ if __name__ == "__main__":
     Simon 20140227 changed nCPUs 
     """
     try:
-        if myExecFlag == 1 and nCPU is None:
+        if myExecFlag is True and nCPU is None:
         	nCPU = multiprocessing.cpu_count() - 1
         	
         pool=multiprocessing.Pool(processes=nCPU)
@@ -423,8 +421,11 @@ if __name__ == "__main__":
         """
         
         try:
-            logger.info("trying to open {0} ... ".format(configFileName))
-            fccConfigXml = xml.dom.minidom.parse(configFileName)
+            logger.info("trying to open {0} ... ".format(config_url))
+            config_xml = urllib.urlopen(config_url).read()
+            print "read config xml file from '{0}'.".format(config_url)
+
+            fccConfigXml = xml.dom.minidom.parseString(config_xml)
         except:
             logger.error("The XML config file is missing or malformed. Error: ")
             logger.error(sys.exc_info()[1])
@@ -433,7 +434,7 @@ if __name__ == "__main__":
             
         rulesList = parseConfig(fccConfigXml)
 
-        logger.debug("found {0} rules in {1}".format(len(rulesList), configFileName))
+        logger.debug("found {0} rules in {1}".format(len(rulesList), config_url))
 
         # traverse file system.
         tStart=time.time()
@@ -443,25 +444,25 @@ if __name__ == "__main__":
         #regex = re.compile(myPattern)
         #FILES = filter(lambda p: regex.match(p), FILES)
 
-
-        tStop=time.time()
-        logger.info("crawling done|time="+str(tStop-tStart))
+        tStop = time.time()
+        logger.info("crawling done|time={0}".format(tStop - tStart))
         logger.debug("found {0} files in {1}.".format(len(FILES), pattern_list[0]))
     
         logger.info("computing rule versus file matching ...")
-        tStart=time.time()
+        tStart = time.time()
         # countDict is used for some kind of rule check.
-        countDict=dict()
+        countDict = dict()
         
         for file in FILES:
             file = os.path.normpath(file)
-	    logger.info("found: {0}".format(file))
+            logger.info("found: {0}".format(file))
             fileDir = os.path.dirname(file)
             fileDetails = getDetailsFromFilePath(file)
             
             matchingRules = matchFileToRules(fileDetails, rulesList)
             if len(matchingRules) > 0:
                 logger.debug("found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), str(file)))
+
             for mrule in matchingRules:
                 if mrule != None:
                     converterDir = os.path.normpath("{0}/{1}".format(fileDir, mrule["converterDir"]))
@@ -469,18 +470,20 @@ if __name__ == "__main__":
                     """
                     create the directory in the python way,
                     """
-                    if not os.path.exists(converterDir) and myExecFlag == 1:
+                    if not os.path.exists(converterDir) and myExecFlag is True:
                         try:
                             os.mkdir(converterDir)
                         except:
                             logger.error("mkdir {0} failed.".format(converterDir))
                             sys.exit(1)
         
-                    toFileName = os.path.normpath(converterDir + "/" + os.path.splitext(os.path.basename(file))[0] + mrule["toFileExt"])
+                    toFileName = os.path.normpath("{0}/{1}{2}".format(converterDir,
+                                                                      os.path.splitext(os.path.basename(file))[0],
+                                                                      mrule["toFileExt"]))
                     print toFileName
                     if not os.path.exists(toFileName):
                         if mrule["project"] in countDict:
-                            countDict[mrule["project"]] = countDict[mrule["project"]] +1
+                            countDict[mrule["project"]] = countDict[mrule["project"]] + 1
                         else:
                             countDict[mrule["project"]] = 1
             
@@ -500,15 +503,16 @@ if __name__ == "__main__":
         tStop=time.time()
         logger.info("matching done.|time="+str(tStop-tStart))
 
-        if myLoop != 1:
-            if myExecFlag != 1:
-                f0 = open(myOutputFile, 'w')
-                for cmd in processedCmdMD5Dict.keys():
-                    f0.write(processedCmdMD5Dict[cmd] + "\n")
-                f0.close()
-                msg="wrote "+str(len(processedCmdMD5Dict.keys()))+" lines to file "+str("'"+ myOutputFile + "'.")
-                print(msg)
-                logger.info(msg)
+
+        if myExecFlag is False:
+            with open(myOutputFile, 'w') as f0:
+                map(lambda cmd: f0.write("{0}\n".format(processedCmdMD5Dict[cmd])), processedCmdMD5Dict.keys())
+
+            msg = "wrote {0} lines to file to {1}.".format(len(processedCmdMD5Dict.keys()), myOutputFile)
+            print(msg)
+            logger.info(msg)
+
+        if myLoop is False:
             sys.exit(0)
                         
         logger.info("sleeping||for {0} seconds ...".format(mySleep))
