@@ -21,31 +21,31 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 """
 NAME
-    (f)gcz (c)onverter (c)ontrol 
+    (f)gcz (c)onverter (c)ontrol
 
 SYNOPSIS
     on Microsoft OS
-    python fcc.py --dir=s:\ --output=runme.bat  
+    python fcc.py --dir=s:\ --output=runme.bat
     python fcc.py --dir=s:\ --pattern=".*VELOS_2.*" --exec --loop
     C:\FGCZ\fcc>c:\Python32\python.exe fcc.py --dir s:\ --output test.bat --pattern "^[Ss]:\\p[0-9]+\\.+"
 
     on UNIX
-    fcc.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat 
+    fcc.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat
 
     arguments:
     --output writes a batch file to run later manually
     --dir specifies the directory to crawl
     --exec automatically triggers the execution of the generated converter commands
     --loop the FCC automatically restarts after it has finished one crawling round
-    
-    
+
+
 DESCRIPTION
     fcc is a minimalistic workflow engine.
-    The specification/properties of the program are as follow: 
+    The specification/properties of the program are as follow:
 
     o converting instrument files (e.g. RAW-files) to all kinds of formats
     o being generic
@@ -60,7 +60,7 @@ AUTHOR
 SEE ALSO
     doi:10.1186/1751-0473-8-3
     http://www.scfbm.org/content/8/1/3/abstract
-    PMID: 23311610 
+    PMID: 23311610
 
 TODO
     o use SAX and not DOM; DOM is anyway useless or even better
@@ -85,9 +85,9 @@ HISTORY
     2011-01-07 (CP) http://fgcz-svn.uzh.ch/viewvc/fgcz/stable/proteomics/fcc/fcc.py?revision=1293&view=markup
     2011-01-10 (CP,SB) refactoring fileDetails
     2011-01-11 (CP) reading only one config file
-    2011-04-08 (CP) 
+    2011-04-08 (CP)
         added --pattern option; now, e.g., we can run one fcc job for each instrument
-        added --looping 
+        added --looping
     2011-07-16 added worker pool (CP)
     2011-07-21 added hostname setting for simulation run (CP)
     2012-06-07 use python logging module (CP)
@@ -113,11 +113,14 @@ import getopt
 import sys
 import re
 import xml.dom.minidom
-import multiprocessing 
-import logging, logging.handlers
+import multiprocessing
+import logging
+import logging.handlers
 import hashlib
 
+
 class FgczCrawl(object):
+
     def __init__(self, pattern=None):
         """
         """
@@ -125,18 +128,18 @@ class FgczCrawl(object):
 
         self.pattern_list = pattern
         if pattern is None:
-            self.pattern_list = ['/srv/www/htdocs/Data2San', 
-                'p[0-9]{3,4}', 
-                'Proteomics|Metabolomics', 
-                '(FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]', 
-                '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',  
-                '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)$']
+            self.pattern_list = ['/srv/www/htdocs/Data2San',
+                                 'p[0-9]{3,4}',
+                                 'Proteomics|Metabolomics',
+                                 '(FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]',
+                                 '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',
+                                 '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)$']
 
         self.regex_list = map(lambda p: re.compile(p), self.pattern_list)
 
         self.para['min_time_diff'] = 300
         self.para['max_time_diff'] = 60 * 60 * 24 * 7 * 5  # five week
-        self.para['min_size'] = 100 * 1024 # 100K Bytes
+        self.para['min_size'] = 100 * 1024  # 100K Bytes
 
     def dfs_(self, path, idx):
         res = []
@@ -156,8 +159,10 @@ class FgczCrawl(object):
             elif os.path.exists(new_path):
                 res.append(new_path)
 
-        res = filter(lambda f: time.time() - os.path.getmtime(f) > self.para['min_time_diff'] and time.time() - os.path.getmtime(f) < self.para['max_time_diff'], res)
-        res = filter(lambda f: os.path.getsize(f) > self.para['min_size'] or os.path.isdir(f), res)
+        res = filter(lambda f: time.time() - os.path.getmtime(f) > self.para[
+                     'min_time_diff'] and time.time() - os.path.getmtime(f) < self.para['max_time_diff'], res)
+        res = filter(lambda f: os.path.getsize(f) >
+                     self.para['min_size'] or os.path.isdir(f), res)
 
         return res
 
@@ -165,44 +170,51 @@ class FgczCrawl(object):
         return self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
 
 
-
 myProcessId = os.getpid()
 myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
 hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
-formatter = logging.Formatter('%(name)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
+formatter = logging.Formatter(
+    '%(name)s %(message)s',
+     datefmt="%Y-%m-%d %H:%M:%S")
 hdlr_syslog.setFormatter(formatter)
 logger = logging.getLogger('fcc')
 logger.addHandler(hdlr_syslog)
 logger.setLevel(logging.INFO)
 
-#configFileName="fcc_config.xml"
+# configFileName="fcc_config.xml"
 
-config_url="http://fgcz-s-021.uzh.ch/config/fcc_config.xml"
+config_url = "http://fgcz-s-021.uzh.ch/config/fcc_config.xml"
 
-myProcessId=os.getpid()
-myHostname=str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+myProcessId = os.getpid()
+myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
 
 def signal_handler(signal, frame):
-    logger.error( ( "sys exit 1; signal=" + str(signal)+ "; frame="+str(frame)) )
-    sys.exit(1) 
+    logger.error(
+        ("sys exit 1; signal=" + str(signal) + "; frame=" + str(frame)))
+    sys.exit(1)
+
 
 def myExecWorker0(cmdLine):
     signal.signal(signal.SIGINT, signal_handler)
-    myPid="-1"
-    rcode="-1"
+    myPid = "-1"
+    rcode = "-1"
     try:
-        logger.info("exec|cmd='"+str(cmdLine)+"'")
-        tStart=time.time()
-        p = subprocess.Popen(cmdLine,shell=True)
-        myPid=str(p.pid)
-        rcode=p.wait()
-        tStop=time.time()
+        logger.info("exec|cmd='" + str(cmdLine) + "'")
+        tStart = time.time()
+        p = subprocess.Popen(cmdLine, shell=True)
+        myPid = str(p.pid)
+        rcode = p.wait()
+        tStop = time.time()
         p.terminate()
     except OSError as e:
-        logger.warning("exception|pid="+str(myPid)+"|OSError="+str(e))
-    logger.info("completed|pid="+str(myPid)+"|time="+str(tStop-tStart)+"|cmd='"+str(cmdLine)+"'")
+        logger.warning("exception|pid=" + str(myPid) + "|OSError=" + str(e))
+    logger.info(
+        "completed|pid=" + str(
+            myPid) + "|time=" + str(
+            tStop - tStart) + "|cmd='" + str(
+                cmdLine) + "'")
     return [cmdLine]
 
 
@@ -215,6 +227,8 @@ def walkOnError(e):
 """
 Parse the XML config data.
 """
+
+
 def parseConfig(xml):
     converterDict = dict()
     rulesList = list()
@@ -235,43 +249,48 @@ def parseConfig(xml):
                         converter[a] = ".RAW"
                     else:
                         converter[a] = ""
-                    print ("converter attribute"+ str(a)+ "could not be found for converterID"+ converter["converterID"] + "set to"+ converter[a])
-            
+                    print (
+                        "converter attribute" + str(
+                            a) + "could not be found for converterID" + converter[
+                                "converterID"] + "set to" + converter[
+                                    a])
 
-            converterDict[converter["converterID"]]=converter
+            converterDict[converter["converterID"]] = converter
         except:
-            logger.debug("skipping one converter config tag "+str(i)+ "...")
+            logger.debug("skipping one converter config tag " + str(i) + "...")
             continue
 
     for i in xml.getElementsByTagName("rule"):
         rule = dict()
         try:
-            converter=converterDict[i.attributes['converterID'].value]
+            converter = converterDict[i.attributes['converterID'].value]
             for a in ("converterDir", "converterCmd", "converterOptions", "toFileExt", "fromFileExt", "hostname"):
-                rule[a]=converter[a]
+                rule[a] = converter[a]
 
             # hard constraints
             for a in ("project", "omics", "instrument", "user", "beginDate", "endDate", "keyword"):
-                rule[a]=i.attributes[a].value
-            
+                rule[a] = i.attributes[a].value
+
             rulesList.append(rule)
         except:
-            logger.debug("skipping rule config tag "+ str(i)+ "...")
+            logger.debug("skipping rule config tag " + str(i) + "...")
             continue
     return rulesList
 
+
 def getDetailsFromFilePath(filePath):
     """
-    The methode assumes standard FGCZ naming convention, meaning the project, instrument, user, date 
-    information are included in the path. 
+    The methode assumes standard FGCZ naming convention, meaning the project, instrument, user, date
+    information are included in the path.
 
     example:
     /p195/Proteomics/LTQ_1/ebrunner_20081028_description/meta_info_for_exp.RAW
     """
-    regex=re.compile(".*(p[0-9]+)[\\\\/](Metabolomics|Proteomics)[\\\\/]([A-Z0-9]+_[0-9]+)[\\\\/]([a-z]+)_(20[0-9][0-9][01][0-9][0123][0-9])[-0-9a-zA-Z_\/\.\\\]*(\.[a-zA-Z0-9]+)$")
+    regex = re.compile(
+        ".*(p[0-9]+)[\\\\/](Metabolomics|Proteomics)[\\\\/]([A-Z0-9]+_[0-9]+)[\\\\/]([a-z]+)_(20[0-9][0-9][01][0-9][0123][0-9])[-0-9a-zA-Z_\/\.\\\]*(\.[a-zA-Z0-9]+)$")
     fileDetails = dict()
 
-    result=regex.match(filePath)
+    result = regex.match(filePath)
 
     if result:
         fileDetails["project"] = result.group(1)
@@ -283,6 +302,7 @@ def getDetailsFromFilePath(filePath):
         fileDetails["filePath"] = filePath
     return fileDetails
 
+
 def matchFileToRules(fileDetails, rulesList):
     """
     returns rules that are matched to instrument RAW-files.
@@ -293,96 +313,102 @@ def matchFileToRules(fileDetails, rulesList):
 
     try:
         filename = fileDetails["filePath"]
-        
+
         if (os.path.isfile(filename) and os.path.getsize(filename) == 0):
-            logger.debug("skipping"+ filename+ "because of file size is 0.")
+            logger.debug("skipping" + filename + "because of file size is 0.")
             return matchedRules
-         
+
         timediff = time.time() - os.path.getmtime(filename)
-        
+
         # TODO(cp): should be a variable
         if timediff < 300:
-            logger.warning("skipping "+str(filename)+" because of mtime difference="+ str( timediff) +"[sec].")
+            logger.warning(
+                "skipping " + str(
+                    filename) + " because of mtime difference=" + str(
+                        timediff) + "[sec].")
             return matchedRules
     except:
         return matchedRules
-        
 
     for rule in rulesList:
         try:
-            regex=re.compile(".*{0}.*".format(rule["keyword"]))
-            regex2=re.compile(".*{0}.*".format(rule["converterDir"]))
+            regex = re.compile(".*{0}.*".format(rule["keyword"]))
+            regex2 = re.compile(".*{0}.*".format(rule["converterDir"]))
 
-            if (((fileDetails["project"] == rule["project"]) or ('' == rule["project"])) and 
+            if (((fileDetails["project"] == rule["project"]) or ('' == rule["project"])) and
                 (fileDetails["omics"] == rule["omics"]) and
-                ((fileDetails["instrument"] == rule["instrument"]) or ('' ==rule["instrument"])) and
-                ((fileDetails["user"] == rule["user"]) or ('' ==rule["user"])) and
+                ((fileDetails["instrument"] == rule["instrument"]) or ('' == rule["instrument"])) and
+                ((fileDetails["user"] == rule["user"]) or ('' == rule["user"])) and
                 (fileDetails["date"] >= rule["beginDate"]) and
                 (fileDetails["date"] <= rule["endDate"]) and
                 (fileDetails["extension"] == rule["fromFileExt"]) and
-                (regex.match(fileDetails["filePath"])) and 
-                (re.search(myHostname, rule["hostname"]))):
-                    if (regex2.match(fileDetails["filePath"])):
-                        logger.debug("skipping '"+ filename+ "' because of recursion warning."+str(rule["converterDir"])+ " is already in the path.")
-                        continue
-                    matchedRules.append(rule)
+                (regex.match(fileDetails["filePath"])) and
+                    (re.search(myHostname, rule["hostname"]))):
+                if (regex2.match(fileDetails["filePath"])):
+                    logger.debug("skipping '" + filename + "' because of recursion warning." + str(
+                        rule["converterDir"]) + " is already in the path.")
+                    continue
+                matchedRules.append(rule)
         except:
             pass
     return matchedRules
 
+
 def createSystemBatch(fromFileName, toFileName, converter):
     return "{0} {1} {2} {3}".format(converter["converterCmd"],
-                                    converter["converterOptions"], fromFileName,  toFileName)
-     
+                                    converter["converterOptions"], fromFileName, toFileName)
+
+
 def usage():
     pass
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
-    myRootDir=None
-    myOutputFile=None
-    myDebugLevel=0
-    mySleep=300
+    myRootDir = None
+    myOutputFile = None
+    myDebugLevel = 0
+    mySleep = 300
     myPattern = ".*"
-    myLoop=False
+    myLoop = False
     matchingRules = list()
     converterOutputs = list()
     myExecFlag = False
-    nCPU = None   
+    nCPU = None
 
     logger.info("fcc started ...")
     print ("using syslog as log.")
 
-    pattern_list = ['/srv/www/htdocs/Data2San/', 
-        'p[0-9]{2,4}', 'Metabolomics', 
-        '(GCT)_[0-9]', 
-        '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
+    pattern_list = ['/srv/www/htdocs/Data2San/',
+                    'p[0-9]{2,4}', 'Metabolomics',
+                    '(GCT)_[0-9]',
+                    '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                     '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
 
     myFgczCrawler = FgczCrawl(pattern=pattern_list)
-    # to save MD5 of all considered commandline 
-    processedCmdMD5Dict=dict()
+    # to save MD5 of all considered commandline
+    processedCmdMD5Dict = dict()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hoepl", ["help", "output=","exec","pattern=","loop", "hostname=", "ncpu="])
+        opts, args = getopt.getopt(sys.argv[1:], "hoepl", [
+                                   "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
     except getopt.GetoptError as err:
         print (str(err))
         usage()
         sys.exit(2)
-    
+
     for o, value in opts:
         if o == "--output":
-            myOutputFile=value
+            myOutputFile = value
         elif o == "--exec":
             myExecFlag = True
         elif o == "--loop":
-            myLoop=True
+            myLoop = True
         elif o == "--pattern":
-            myPattern=value
+            myPattern = value
         elif o == "--hostname":
-            myHostname=value
+            myHostname = value
         elif o == "--ncpu":
-            nCPU=int(value)
+            nCPU = int(value)
         elif o in ("--help"):
             usage()
             sys.exit(0)
@@ -390,36 +416,36 @@ if __name__ == "__main__":
             usage()
             sys.exit(1)
 
-    if not os.path.exists(os.path.normpath(pattern_list[0])): 
+    if not os.path.exists(os.path.normpath(pattern_list[0])):
         logger.error("{0} does not exsist.".format(pattern_list[0]))
         sys.exit(1)
 
     if not myOutputFile:
-        timegmt = time.gmtime(time.time( ))
+        timegmt = time.gmtime(time.time())
         fmt = '__%Y%m%d-%H%M%S-runme.bat'
         myOutputFile = time.strftime(fmt, timegmt)
-        
+
     """
     This is the part where the compute pool is created to utilize the compute box.
     Note that the executed jobs might run on more than one thread/cpu.
-    Simon 20140227 changed nCPUs 
+    Simon 20140227 changed nCPUs
     """
     try:
         if myExecFlag is True and nCPU is None:
-        	nCPU = multiprocessing.cpu_count() - 1
-        	
-        pool=multiprocessing.Pool(processes=nCPU)
-        logger.info("created pool having " + str(nCPU)+ " processes.")
+            nCPU = multiprocessing.cpu_count() - 1
+
+        pool = multiprocessing.Pool(processes=nCPU)
+        logger.info("created pool having " + str(nCPU) + " processes.")
     except:
         logger.error("could not create pool.")
         sys.exit(1)
-    
+
     while True:
         """
-        main reads the xml config file in each iteration to 
+        main reads the xml config file in each iteration to
         manage updated rules of the fcc_config.xml file.
         """
-        
+
         try:
             logger.info("trying to open {0} ... ".format(config_url))
             config_xml = urllib.urlopen(config_url).read()
@@ -427,46 +453,51 @@ if __name__ == "__main__":
 
             fccConfigXml = xml.dom.minidom.parseString(config_xml)
         except:
-            logger.error("The XML config file is missing or malformed. Error: ")
+            logger.error(
+                "The XML config file is missing or malformed. Error: ")
             logger.error(sys.exc_info()[1])
             print ("Unexpected error:", sys.exc_info()[1])
             sys.exit(1)
-            
+
         rulesList = parseConfig(fccConfigXml)
 
-        logger.debug("found {0} rules in {1}".format(len(rulesList), config_url))
+        logger.debug(
+            "found {0} rules in {1}".format(len(rulesList), config_url))
 
         # traverse file system.
-        tStart=time.time()
+        tStart = time.time()
         logger.info("crawling for files ...")
 
         FILES = myFgczCrawler.run()
-        #regex = re.compile(myPattern)
-        #FILES = filter(lambda p: regex.match(p), FILES)
+        # regex = re.compile(myPattern)
+        # FILES = filter(lambda p: regex.match(p), FILES)
 
         tStop = time.time()
         logger.info("crawling done|time={0}".format(tStop - tStart))
-        logger.debug("found {0} files in {1}.".format(len(FILES), pattern_list[0]))
-    
+        logger.debug(
+            "found {0} files in {1}.".format(len(FILES), pattern_list[0]))
+
         logger.info("computing rule versus file matching ...")
         tStart = time.time()
         # countDict is used for some kind of rule check.
         countDict = dict()
-        
+
         for file in FILES:
             file = os.path.normpath(file)
             logger.info("found: {0}".format(file))
             fileDir = os.path.dirname(file)
             fileDetails = getDetailsFromFilePath(file)
-            
+
             matchingRules = matchFileToRules(fileDetails, rulesList)
             if len(matchingRules) > 0:
-                logger.debug("found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), str(file)))
+                logger.debug(
+                    "found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), str(file)))
 
             for mrule in matchingRules:
-                if mrule != None:
-                    converterDir = os.path.normpath("{0}/{1}".format(fileDir, mrule["converterDir"]))
-    
+                if mrule is not None:
+                    converterDir = os.path.normpath(
+                        "{0}/{1}".format(fileDir, mrule["converterDir"]))
+
                     """
                     create the directory in the python way,
                     """
@@ -474,47 +505,57 @@ if __name__ == "__main__":
                         try:
                             os.mkdir(converterDir)
                         except:
-                            logger.error("mkdir {0} failed.".format(converterDir))
+                            logger.error(
+                                "mkdir {0} failed.".format(converterDir))
                             sys.exit(1)
-        
-                    toFileName = os.path.normpath("{0}/{1}{2}".format(converterDir,
-                                                                      os.path.splitext(os.path.basename(file))[0],
-                                                                      mrule["toFileExt"]))
+
+                    toFileName = os.path.normpath(
+                        "{0}/{1}{2}".format(converterDir,
+                                            os.path.splitext(
+                                            os.path.basename(file))[0],
+                                            mrule["toFileExt"]))
                     print toFileName
                     if not os.path.exists(toFileName):
                         if mrule["project"] in countDict:
-                            countDict[mrule["project"]] = countDict[mrule["project"]] + 1
+                            countDict[mrule["project"]] = countDict[
+                                mrule["project"]] + 1
                         else:
                             countDict[mrule["project"]] = 1
-            
-                        candCmdLine=createSystemBatch(file, toFileName, mrule)
+
+                        candCmdLine = createSystemBatch(
+                            file, toFileName, mrule)
                         checksum = hashlib.md5()
                         checksum.update(candCmdLine.encode("utf-8"))
-                        candCmdLineMD5=checksum.hexdigest()
+                        candCmdLineMD5 = checksum.hexdigest()
 
                         if candCmdLineMD5 in processedCmdMD5Dict:
                             pass
                         else:
                             processedCmdMD5Dict[candCmdLineMD5] = candCmdLine
                             if myExecFlag == 1:
-                                pool.map_async(myExecWorker0, [candCmdLine], callback=lambda i: logger.info("callback {0}".format(i)))
-                                logger.info("added|cmd='" + str(candCmdLine) + "' to pool.")
+                                pool.map_async(
+                                    myExecWorker0,
+                                    [candCmdLine],
+                                    callback=lambda i: logger.info("callback {0}".format(i)))
+                                logger.info(
+                                    "added|cmd='" + str(candCmdLine) + "' to pool.")
 
-        tStop=time.time()
-        logger.info("matching done.|time="+str(tStop-tStart))
-
+        tStop = time.time()
+        logger.info("matching done.|time=" + str(tStop - tStart))
 
         if myExecFlag is False:
             with open(myOutputFile, 'w') as f0:
-                map(lambda cmd: f0.write("{0}\n".format(processedCmdMD5Dict[cmd])), processedCmdMD5Dict.keys())
+                map(lambda cmd: f0.write(
+                    "{0}\n".format(processedCmdMD5Dict[cmd])), processedCmdMD5Dict.keys())
 
-            msg = "wrote {0} lines to file to {1}.".format(len(processedCmdMD5Dict.keys()), myOutputFile)
+            msg = "wrote {0} lines to file to {1}.".format(
+                len(processedCmdMD5Dict.keys()), myOutputFile)
             print(msg)
             logger.info(msg)
 
         if myLoop is False:
             sys.exit(0)
-                        
+
         logger.info("sleeping||for {0} seconds ...".format(mySleep))
         time.sleep(mySleep)
 
