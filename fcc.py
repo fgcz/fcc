@@ -7,9 +7,10 @@
 # $Author: cpanse $
 
 
-# Copyright 2008-2012
+# Copyright 2008-2015
 # Christian Panse <cp@fgcz.ethz.ch>
-# Simon Barkow-Oesterreicher <sb@fgcz.ethz.ch>
+# Simon Barkow-Oesterreicher 
+# Witold Eric Wolski <wew@fgcz.ethz.ch>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
