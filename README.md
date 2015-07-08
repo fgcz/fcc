@@ -44,6 +44,13 @@ PMID: 23311610
 </converterList>
 ```
     
+# example
+
+run fcc on a linux box and fake the hostname
+```bash
+./fcc.py --output runme.bat --hostname fgcz-s-021
+```
+
 #TODO
 
 ## use lxml 
