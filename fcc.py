@@ -472,7 +472,7 @@ class Fcc:
                                         os.path.splitext(
                                         os.path.basename(file))[0],
                                         mrule["toFileExt"]))
-                print toFileName
+
                 if not os.path.exists(toFileName):
                     if mrule["project"] in countDict:
                         countDict[mrule["project"]] = countDict[
@@ -494,7 +494,6 @@ class Fcc:
                                 callback=lambda i: logger.info("callback {0}".format(i)))
                             logger.info(
                                 "added|cmd='{}' to pool".format(candCmdLine))
-
 
 
     def run(self):
@@ -522,7 +521,6 @@ class Fcc:
         try:
             if self.parameters['myExecFlag'] and self.parameters['nCPU'] is None:
                 self.parameters['nCPU'] = multiprocessing.cpu_count() - 1
-            print "ALIVE"
 
             self.pool = multiprocessing.Pool(processes=self.parameters['nCPU'])
             logger.info("created pool having {0} processes.".format(self.parameters['nCPU']))
@@ -530,7 +528,6 @@ class Fcc:
         except:
             logger.error("could not create pool.")
             sys.exit(1)
-
 
         while True:
             self.rulesList = self.read_config(self.parameters['config_url'])
