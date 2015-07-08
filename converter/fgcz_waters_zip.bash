@@ -1,6 +1,5 @@
 #!/bin/bash
-# wew@fgcz.ethz.ch 2015-07-08
-
+# Witold E. Wolski <wew@fgcz.ethz.ch> 2015-07-08
 
 my_source=$1
 my_target=$2
