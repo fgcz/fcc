@@ -17,33 +17,45 @@ Simon Barkow-Oesterreicher and Christian Panse
 #Contact
 <cp@fgcz.ethz.ch>
 
-#SEE ALSO
+# SEE ALSO / References
 
-[doi:10.1186/1751-0473-8-3 / PMID: 23311610!](http://www.scfbm.org/content/8/1/3/abstract)
+- [doi:10.1186/1751-0473-8-3!](http://www.scfbm.org/content/8/1/3/abstract)
+- [PMC3614436!](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/)
+- PMID: 23311610
 
 # CONFIGURATION
 
 ```xml
  <controllerRuleSet>
-    <rule converterID='000' project='p103' omics='Proteomics' user='' instrument='ORBI_2' beginDate='20080901' endDate='20990101' keyword="iTRAQ"></rule>
+    <rule converterID='000' 
+    project='p103' 
+    omics='Proteomics' 
+    user='' instrument='ORBI_2' 
+    beginDate='20080901' 
+    endDate='20990101' 
+    keyword="iTRAQ">
+    </rule>
 </controllerRuleSet>
     
 <converterList>
-    <converter converterID='000' converterDir= 'mgf__low_res_MS2_iTRAQ' converterCmd='cscript "C:\FGCZ\fgcz-proteomics\stage\mascot_distiller\fgczRaw2Mgf.vbs"' converterOptions='"C:\FGCZ\fgcz-proteomics\stage\generalRawFileConverterRobot\MascotDistillerOPTs\Orbitrap_low_res_MS2_iTRAQ.opt"' toFileExt='.mgf' hostname='fgcz-s-034'> </converter>
+    <converter converterID='000' 
+    converterDir= 'mgf__low_res_MS2_iTRAQ' 
+    converterCmd='cscript "C:\FGCZ\fgcz-proteomics\stage\mascot_distiller\fgczRaw2Mgf.vbs"'         converterOptions='"C:\FGCZ\fgcz-proteomics\stage\generalRawFileConverterRobot\MascotDistillerOPTs\Orbitrap_low_res_MS2_iTRAQ.opt"' 
+    toFileExt='.mgf' 
+    hostname='fgcz-s-034'> 
+    </converter>
 </converterList>
 ```
     
+#TODO
 
-
-
----
-#benchmark
+## benchmark
 ```bash
 while true; do echo Yeah; sleep 10m; done 
 ```
 
 ---
 
-#References
 
-http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/
+
+
