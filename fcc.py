@@ -459,7 +459,7 @@ class Fcc:
                 """
                 create the directory in the python way,
                 """
-                if not os.path.exists(converterDir) and self.myExecFlag:
+                if not os.path.exists(converterDir) and self.parameters['myExecFlag']:
                     try:
                         os.mkdir(converterDir)
                     except:
@@ -488,7 +488,7 @@ class Fcc:
 
                     if not candCmdLineMD5 in self.processedCmdMD5Dict:
                         self.processedCmdMD5Dict[candCmdLineMD5] = candCmdLine
-                        if self.myExecFlag:
+                        if self.parameters['myExecFlag']:
                             pool.map_async(myExecWorker0,
                                 [candCmdLine],
                                 callback=lambda i: logger.info("callback {0}".format(i)))
