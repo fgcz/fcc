@@ -1,6 +1,5 @@
 #fcc
 
-
 #DESCRIPTION
 fcc is a minimalistic workflow engine.
 The specification/properties of the program are as follow:
@@ -18,9 +17,8 @@ Simon Barkow-Oesterreicher and Christian Panse
 <cp@fgcz.ethz.ch>
 
 # SEE ALSO / References
-
-- [doi:10.1186/1751-0473-8-3!](http://www.scfbm.org/content/8/1/3/abstract)
-- [PMC3614436!](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/)
+- [doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract)
+- [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/)
 - PMID: 23311610
 
 # CONFIGURATION
