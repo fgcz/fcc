@@ -1,0 +1,1 @@
+./fgcz_waters_zip.bash  /srv/www/htdocs/Data2San/p389/Metabolomics/GCT_1/sschauer_20150616_37FAME_mix/sschauer_20150616_p389_FAME37_1000ngul_1.raw /srv/www/htdocs/Data2San/p389/Metabolomics/GCT_1/sschauer_20150616_37FAME_mix/zip/sschauer_20150616_p389_FAME37_1000ngul_1.zip
