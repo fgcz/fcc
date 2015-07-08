@@ -56,25 +56,12 @@ DESCRIPTION
     o std and error logging
 
 AUTHOR
-    Simon Barkow-Oesterreicher and Christian Panse <{sb,cp}@fgcz.ethz.ch>
+    Simon Barkow-Oesterreicher and Christian Panse <cp@fgcz.ethz.ch>
 
 SEE ALSO
     doi:10.1186/1751-0473-8-3
-    http://www.scfbm.org/content/8/1/3/abstract
-    PMID: 23311610
 
-TODO
-    o use SAX and not DOM; DOM is anyway useless or even better
-    o replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
-    o provide cmd argv for log file name
 
-CONFIG EXAMPLE
-    <controllerRuleSet>
-    <rule converterID='000' project='p103' omics='Proteomics' user='' instrument='ORBI_2' beginDate='20080901' endDate='20990101' keyword="iTRAQ"></rule>
-    </controllerRuleSet>
-    <converterList>
-    <converter converterID='000' converterDir= 'mgf__low_res_MS2_iTRAQ' converterCmd='cscript "C:\FGCZ\fgcz-proteomics\stage\mascot_distiller\fgczRaw2Mgf.vbs"' converterOptions='"C:\FGCZ\fgcz-proteomics\stage\generalRawFileConverterRobot\MascotDistillerOPTs\Orbitrap_low_res_MS2_iTRAQ.opt"' toFileExt='.mgf' hostname='fgcz-s-034'> </converter>
-    </converterList>
 
 HISTORY
     2008-10-28 2008 (SB)
@@ -119,17 +106,26 @@ import logging
 import logging.handlers
 import hashlib
 
-hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
-formatter = logging.Formatter(
-    '%(name)s %(message)s',
-     datefmt="%Y-%m-%d %H:%M:%S")
 
-hdlr_syslog.setFormatter(formatter)
-logger = logging.getLogger('fcc')
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
+def create_logger(name="fcc", address=("130.60.81.148", 514)):
+    """
+    create a logger object
+    """
+    syslog_handler = logging.handlers.SysLogHandler(address=address)
+    formatter = logging.Formatter('%(name)s %(message)s')
+    syslog_handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(20)
+    logger.addHandler(syslog_handler)
+
+
+    return logger
+
+logger = create_logger()
 
 class FgczCrawl(object):
+
 
     def __init__(self, pattern=None):
         """
@@ -187,7 +183,7 @@ class FgczCrawl(object):
         tStart = time.time()
         logger.info("crawling for files ...")
         files = self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
-        logger.info("crawling done|time={0}".format(time.time() - tStart))
+        logger.info("crawling done|time={0:.2f} seconds.".format(time.time() - tStart))
         logger.debug("found {0} files in {1}.".format(len(files), self.pattern_list[0]))
 
         return files
@@ -215,10 +211,7 @@ def myExecWorker0(cmdLine):
     except OSError as e:
         logger.warning("exception|pid=" + str(myPid) + "|OSError=" + str(e))
     logger.info(
-        "completed|pid=" + str(
-            myPid) + "|time=" + str(
-            tStop - tStart) + "|cmd='" + str(
-                cmdLine) + "'")
+        "completed|pid=" + str( myPid) + "|time=" + str( tStop - tStart) + "|cmd='" + str( cmdLine) + "'")
     return [cmdLine]
 
 
@@ -234,6 +227,7 @@ def parseConfig(xml):
     parse the XML config data.
     """
 
+    logger.info("parsing xml")
     converterDict = dict()
     rulesList = list()
 
@@ -384,7 +378,6 @@ class Fcc:
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
     myOutputFile = None
-    myDebugLevel = 0
     mySleep = 300
     myPattern = ".*"
     myLoop = False
@@ -414,14 +407,13 @@ class Fcc:
         """
 
         try:
-            logger.info("trying to open {0} ... ".format(url))
+            logger.info("trying to open '{0}' ... ".format(url))
             config_xml = urllib.urlopen(url).read()
-            print "read config xml file from '{0}'.".format(url)
 
             fccConfigXml = xml.dom.minidom.parseString(config_xml)
+            logger.info("read {0} ... ".format(url))
         except:
-            logger.error(
-                "The XML config file is missing or malformed. Error: ")
+            logger.error("The XML config file is missing or malformed. Error: ")
             logger.error(sys.exc_info()[1])
             print ("Unexpected error:", sys.exc_info()[1])
             sys.exit(1)
@@ -442,7 +434,7 @@ class Fcc:
         countDict = dict()
 
         file = os.path.normpath(file)
-        logger.info("found: {0}".format(file))
+        # logger.info("found: {0}".format(file))
         fileDir = os.path.dirname(file)
         fileDetails = getDetailsFromFilePath(file)
 
@@ -543,13 +535,13 @@ class Fcc:
             """
             map(lambda x: self.process(x), crawler.run)
 
-            logger.info("matching done.|time={}".format(time.time() - tStart))
+            logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
 
             if not self.parameters['myExecFlag']:
                 with open(self.parameters['myOutputFile'], 'w') as f:
                     map(lambda cmd: f.write("{0}\n".format(self.processedCmdMD5Dict[cmd])), self.processedCmdMD5Dict.keys())
 
-                msg = "wrote {0} lines to file to {1}.".format(len(self.processedCmdMD5Dict.keys()),
+                msg = "wrote {0} lines to file to '{1}'.".format(len(self.processedCmdMD5Dict.keys()),
                                                                self.parameters['myOutputFile'])
                 print(msg)
                 logger.info(msg)
