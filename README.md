@@ -1,6 +1,6 @@
 #fcc
 
-#DESCRIPTION
+#description
 fcc is a minimalistic workflow engine.
 The specification/properties of the program are as follow:
 - converting instrument files (e.g. RAW-files) to all kinds of formats
@@ -10,18 +10,18 @@ The specification/properties of the program are as follow:
 - configurable through xml file which means new converter by new tag in xml file NO CODE CHANGE!
 - stdout and errout logging
 
-#AUTHOR
+#author
 Simon Barkow-Oesterreicher and Christian Panse 
     
-#Contact
+#contact
 <cp@fgcz.ethz.ch>
 
-# SEE ALSO / References
+# see also / references
 - [doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract)
 - [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/)
 - PMID: 23311610
 
-# CONFIGURATION
+# configuration
 
 ```xml
  <controllerRuleSet>
@@ -47,12 +47,11 @@ Simon Barkow-Oesterreicher and Christian Panse
     
 #TODO
 
-## benchmark
-```bash
-while true; do echo Yeah; sleep 10m; done 
-```
-
----
+## use lxml 
+## replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
+## provide cmd argv for log file name
+## unit test
+##make Fcc class
 
 
 
