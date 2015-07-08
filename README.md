@@ -1,4 +1,4 @@
-#fcc - FGCZ Converter Control
+#fcc - [FGCZ](http://www.fgcz.ethz.ch) Converter Control
 
 #description
 fcc is a minimalistic workflow engine.
