@@ -1,4 +1,4 @@
-#fcc - (F)GCZ (C)onverter (C)ontrol
+#fcc - FGCZ Converter Control
 
 #description
 fcc is a minimalistic workflow engine.
