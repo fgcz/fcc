@@ -118,6 +118,15 @@ import logging
 import logging.handlers
 import hashlib
 
+hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
+formatter = logging.Formatter(
+    '%(name)s %(message)s',
+     datefmt="%Y-%m-%d %H:%M:%S")
+
+hdlr_syslog.setFormatter(formatter)
+logger = logging.getLogger('fcc')
+logger.addHandler(hdlr_syslog)
+logger.setLevel(logging.INFO)
 
 class FgczCrawl(object):
 
@@ -166,28 +175,22 @@ class FgczCrawl(object):
 
         return res
 
+    @property
     def run(self):
-        return self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
+        """
+        traverse file system.
 
+        :return: list of files
+        """
 
-myProcessId = os.getpid()
-myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+        tStart = time.time()
+        logger.info("crawling for files ...")
+        files = self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
+        logger.info("crawling done|time={0}".format(time.time() - tStart))
+        logger.debug("found {0} files in {1}.".format(len(files), self.pattern_list[0]))
 
-hdlr_syslog = logging.handlers.SysLogHandler(address=('130.60.81.148', 514))
-formatter = logging.Formatter(
-    '%(name)s %(message)s',
-     datefmt="%Y-%m-%d %H:%M:%S")
-hdlr_syslog.setFormatter(formatter)
-logger = logging.getLogger('fcc')
-logger.addHandler(hdlr_syslog)
-logger.setLevel(logging.INFO)
+        return files
 
-# configFileName="fcc_config.xml"
-
-config_url = "http://fgcz-s-021.uzh.ch/config/fcc_config.xml"
-
-myProcessId = os.getpid()
-myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
 
 def signal_handler(signal, frame):
@@ -224,12 +227,12 @@ def walkOnError(e):
     sys.exit(1)
 
 
-"""
-Parse the XML config data.
-"""
-
 
 def parseConfig(xml):
+    """
+    parse the XML config data.
+    """
+
     converterDict = dict()
     rulesList = list()
 
@@ -249,15 +252,9 @@ def parseConfig(xml):
                         converter[a] = ".RAW"
                     else:
                         converter[a] = ""
-                    print (
-                        "converter attribute" + str(
-                            a) + "could not be found for converterID" + converter[
-                                "converterID"] + "set to" + converter[
-                                    a])
-
             converterDict[converter["converterID"]] = converter
         except:
-            logger.debug("skipping one converter config tag " + str(i) + "...")
+            logger.debug("skipping one converter config tag {0} ...".format(i))
             continue
 
     for i in xml.getElementsByTagName("rule"):
@@ -273,8 +270,9 @@ def parseConfig(xml):
 
             rulesList.append(rule)
         except:
-            logger.debug("skipping rule config tag " + str(i) + "...")
+            logger.debug("skipping rule config tag {0} ...".format(i))
             continue
+
     return rulesList
 
 
@@ -362,7 +360,26 @@ def createSystemBatch(fromFileName, toFileName, converter):
 def usage():
     pass
 
-if __name__ == "__main__":
+
+class Fcc:
+    """
+
+    """
+    parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml",
+                 'crawl_pattern': ['/srv/www/htdocs/Data2San/',
+                        'p[0-9]{2,4}', 'Metabolomics',
+                        '(GCT)_[0-9]',
+                        '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
+                        '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
+                 'nCPU': None, 
+                 'myExecFlag': False}
+
+    myProcessId = os.getpid()
+    myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+
+    myProcessId = os.getpid()
+    myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
     myOutputFile = None
@@ -372,84 +389,33 @@ if __name__ == "__main__":
     myLoop = False
     matchingRules = list()
     converterOutputs = list()
-    myExecFlag = False
-    nCPU = None
 
-    logger.info("fcc started ...")
-    print ("using syslog as log.")
-
-    pattern_list = ['/srv/www/htdocs/Data2San/',
-                    'p[0-9]{2,4}', 'Metabolomics',
-                    '(GCT)_[0-9]',
-                    '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
-                    '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
-
-    myFgczCrawler = FgczCrawl(pattern=pattern_list)
     # to save MD5 of all considered commandline
     processedCmdMD5Dict = dict()
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hoepl", [
-                                   "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
-    except getopt.GetoptError as err:
-        print (str(err))
-        usage()
-        sys.exit(2)
 
-    for o, value in opts:
-        if o == "--output":
-            myOutputFile = value
-        elif o == "--exec":
-            myExecFlag = True
-        elif o == "--loop":
-            myLoop = True
-        elif o == "--pattern":
-            myPattern = value
-        elif o == "--hostname":
-            myHostname = value
-        elif o == "--ncpu":
-            nCPU = int(value)
-        elif o in ("--help"):
-            usage()
-            sys.exit(0)
-        else:
-            usage()
-            sys.exit(1)
+    def __init__(self):
+        logger.info("fcc started ...")
+        self.processedCmdMD5Dict = dict()
+        print ("using syslog as log.")
 
-    if not os.path.exists(os.path.normpath(pattern_list[0])):
-        logger.error("{0} does not exsist.".format(pattern_list[0]))
-        sys.exit(1)
+    def set_para(self, key, value):
+        """ class parameter setting """
+        self.parameters[key] = value
+        #if key is 'pattern':
+        #    self.regex = re.compile(self.parameters['pattern'])
 
-    if not myOutputFile:
-        timegmt = time.gmtime(time.time())
-        fmt = '__%Y%m%d-%H%M%S-runme.bat'
-        myOutputFile = time.strftime(fmt, timegmt)
 
-    """
-    This is the part where the compute pool is created to utilize the compute box.
-    Note that the executed jobs might run on more than one thread/cpu.
-    Simon 20140227 changed nCPUs
-    """
-    try:
-        if myExecFlag is True and nCPU is None:
-            nCPU = multiprocessing.cpu_count() - 1
-
-        pool = multiprocessing.Pool(processes=nCPU)
-        logger.info("created pool having " + str(nCPU) + " processes.")
-    except:
-        logger.error("could not create pool.")
-        sys.exit(1)
-
-    while True:
+    def read_config(self, url=''):
         """
-        main reads the xml config file in each iteration to
+        reads the xml config file in each iteration to
         manage updated rules of the fcc_config.xml file.
         """
 
         try:
-            logger.info("trying to open {0} ... ".format(config_url))
-            config_xml = urllib.urlopen(config_url).read()
-            print "read config xml file from '{0}'.".format(config_url)
+            logger.info("trying to open {0} ... ".format(url))
+            config_xml = urllib.urlopen(url).read()
+            print "read config xml file from '{0}'.".format(url)
 
             fccConfigXml = xml.dom.minidom.parseString(config_xml)
         except:
@@ -459,105 +425,186 @@ if __name__ == "__main__":
             print ("Unexpected error:", sys.exc_info()[1])
             sys.exit(1)
 
-        rulesList = parseConfig(fccConfigXml)
+        # TODO(cp): use lxml
+        try:
+            return(parseConfig(fccConfigXml))
+        except:
+            logger.error("could not parse xml configuration")
+            return None
 
-        logger.debug(
-            "found {0} rules in {1}".format(len(rulesList), config_url))
+    def process(self, file):
+        """
 
-        # traverse file system.
-        tStart = time.time()
-        logger.info("crawling for files ...")
-
-        FILES = myFgczCrawler.run()
-        # regex = re.compile(myPattern)
-        # FILES = filter(lambda p: regex.match(p), FILES)
-
-        tStop = time.time()
-        logger.info("crawling done|time={0}".format(tStop - tStart))
-        logger.debug(
-            "found {0} files in {1}.".format(len(FILES), pattern_list[0]))
-
-        logger.info("computing rule versus file matching ...")
-        tStart = time.time()
-        # countDict is used for some kind of rule check.
+        :return:
+        """
+        # countDict is used for some kind of rule check. TODO(cp):??
         countDict = dict()
 
-        for file in FILES:
-            file = os.path.normpath(file)
-            logger.info("found: {0}".format(file))
-            fileDir = os.path.dirname(file)
-            fileDetails = getDetailsFromFilePath(file)
+        file = os.path.normpath(file)
+        logger.info("found: {0}".format(file))
+        fileDir = os.path.dirname(file)
+        fileDetails = getDetailsFromFilePath(file)
 
-            matchingRules = matchFileToRules(fileDetails, rulesList)
-            if len(matchingRules) > 0:
-                logger.debug(
-                    "found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), str(file)))
+        matchingRules = matchFileToRules(fileDetails, self.rulesList)
+        if len(matchingRules) > 0:
+            logger.debug(
+                "found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), file))
 
-            for mrule in matchingRules:
-                if mrule is not None:
-                    converterDir = os.path.normpath(
-                        "{0}/{1}".format(fileDir, mrule["converterDir"]))
+        for mrule in matchingRules:
+            if mrule is not None:
+                converterDir = os.path.normpath(
+                    "{0}/{1}".format(fileDir, mrule["converterDir"]))
 
-                    """
-                    create the directory in the python way,
-                    """
-                    if not os.path.exists(converterDir) and myExecFlag is True:
-                        try:
-                            os.mkdir(converterDir)
-                        except:
-                            logger.error(
-                                "mkdir {0} failed.".format(converterDir))
-                            sys.exit(1)
+                """
+                create the directory in the python way,
+                """
+                if not os.path.exists(converterDir) and self.myExecFlag:
+                    try:
+                        os.mkdir(converterDir)
+                    except:
+                        logger.error(
+                            "mkdir {0} failed.".format(converterDir))
+                        sys.exit(1)
 
-                    toFileName = os.path.normpath(
-                        "{0}/{1}{2}".format(converterDir,
-                                            os.path.splitext(
-                                            os.path.basename(file))[0],
-                                            mrule["toFileExt"]))
-                    print toFileName
-                    if not os.path.exists(toFileName):
-                        if mrule["project"] in countDict:
-                            countDict[mrule["project"]] = countDict[
-                                mrule["project"]] + 1
-                        else:
-                            countDict[mrule["project"]] = 1
+                toFileName = os.path.normpath(
+                    "{0}/{1}{2}".format(converterDir,
+                                        os.path.splitext(
+                                        os.path.basename(file))[0],
+                                        mrule["toFileExt"]))
+                print toFileName
+                if not os.path.exists(toFileName):
+                    if mrule["project"] in countDict:
+                        countDict[mrule["project"]] = countDict[
+                            mrule["project"]] + 1
+                    else:
+                        countDict[mrule["project"]] = 1
 
-                        candCmdLine = createSystemBatch(
-                            file, toFileName, mrule)
-                        checksum = hashlib.md5()
-                        checksum.update(candCmdLine.encode("utf-8"))
-                        candCmdLineMD5 = checksum.hexdigest()
+                    candCmdLine = createSystemBatch(
+                        file, toFileName, mrule)
+                    checksum = hashlib.md5()
+                    checksum.update(candCmdLine.encode("utf-8"))
+                    candCmdLineMD5 = checksum.hexdigest()
 
-                        if candCmdLineMD5 in processedCmdMD5Dict:
-                            pass
-                        else:
-                            processedCmdMD5Dict[candCmdLineMD5] = candCmdLine
-                            if myExecFlag == 1:
-                                pool.map_async(
-                                    myExecWorker0,
-                                    [candCmdLine],
-                                    callback=lambda i: logger.info("callback {0}".format(i)))
-                                logger.info(
-                                    "added|cmd='" + str(candCmdLine) + "' to pool.")
+                    if not candCmdLineMD5 in self.processedCmdMD5Dict:
+                        self.processedCmdMD5Dict[candCmdLineMD5] = candCmdLine
+                        if self.myExecFlag:
+                            pool.map_async(myExecWorker0,
+                                [candCmdLine],
+                                callback=lambda i: logger.info("callback {0}".format(i)))
+                            logger.info(
+                                "added|cmd='{}' to pool".format(candCmdLine))
 
-        tStop = time.time()
-        logger.info("matching done.|time=" + str(tStop - tStart))
 
-        if myExecFlag is False:
-            with open(myOutputFile, 'w') as f0:
-                map(lambda cmd: f0.write(
-                    "{0}\n".format(processedCmdMD5Dict[cmd])), processedCmdMD5Dict.keys())
 
-            msg = "wrote {0} lines to file to {1}.".format(
-                len(processedCmdMD5Dict.keys()), myOutputFile)
-            print(msg)
-            logger.info(msg)
+    def run(self):
+        """
 
-        if myLoop is False:
+        :return:
+        """
+        crawler = FgczCrawl(pattern=self.parameters['crawl_pattern'])
+
+
+        if not os.path.exists(os.path.normpath(self.parameters['crawl_pattern'][0])):
+            logger.error("{0} does not exsist.".format(self.parameters('crawl_pattern')[0]))
+            sys.exit(1)
+
+        if not 'myOutputFile' in self.parameters:
+            timegmt = time.gmtime(time.time())
+            fmt = '__%Y%m%d-%H%M%S-runme.bat'
+            self.parameters['myOutputFile'] = time.strftime(fmt, timegmt)
+
+        """
+        This is the part where the compute pool is created to utilize the compute box.
+        Note that the executed jobs might run on more than one thread/cpu.
+        Simon 20140227 changed nCPUs
+        """
+        try:
+            if self.parameters['myExecFlag'] and self.parameters['nCPU'] is None:
+                self.parameters['nCPU'] = multiprocessing.cpu_count() - 1
+            print "ALIVE"
+
+            self.pool = multiprocessing.Pool(processes=self.parameters['nCPU'])
+            logger.info("created pool having {0} processes.".format(self.parameters['nCPU']))
+
+        except:
+            logger.error("could not create pool.")
+            sys.exit(1)
+
+
+        while True:
+            self.rulesList = self.read_config(self.parameters['config_url'])
+            logger.debug("found {0} rules in {1}".format(len(self.rulesList), self.parameters['config_url']))
+
+
+            logger.info("computing rule versus file matching ...")
+            tStart = time.time()
+
+            """TODO(cp):
+            regex = re.compile(myPattern)
+            FILES = filter(lambda p: regex.match(p), FILES)
+            """
+            map(lambda x: self.process(x), crawler.run)
+
+            logger.info("matching done.|time={}".format(time.time() - tStart))
+
+            if not self.parameters['myExecFlag']:
+                with open(self.parameters['myOutputFile'], 'w') as f:
+                    map(lambda cmd: f.write("{0}\n".format(self.processedCmdMD5Dict[cmd])), self.processedCmdMD5Dict.keys())
+
+                msg = "wrote {0} lines to file to {1}.".format(len(self.processedCmdMD5Dict.keys()),
+                                                               self.parameters['myOutputFile'])
+                print(msg)
+                logger.info(msg)
+
+            if not self.myLoop:
+                sys.exit(0)
+
+            logger.info("sleeping||for {0} seconds ...".format(mySleep))
+            time.sleep(self.mySleep)
+
+
+        self.pool.close()
+        self.pool.join()
+
+
+# MAIN
+if __name__ == "__main__":
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hoepl", [
+                                   "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
+    except getopt.GetoptError as err:
+        print (str(err))
+        usage()
+        sys.exit(2)
+
+    fcc = Fcc()
+
+    for o, value in opts:
+        if o == "--output":
+            fcc.set_para('myOutputFile', value)
+        elif o == "--exec":
+            fcc.set_para('myExecFlag', True)
+        elif o == "--loop":
+            fcc.set_para('myLoop', True)
+        elif o == "--pattern":
+            fcc.set_para('myPattern', value)
+        elif o == "--hostname":
+            myHostname = value
+        elif o == "--ncpu":
+            fcc.set_para('nCPU',  int(value))
+        elif o in ("--help"):
+            usage()
             sys.exit(0)
+        else:
+            usage()
+            sys.exit(1)
 
-        logger.info("sleeping||for {0} seconds ...".format(mySleep))
-        time.sleep(mySleep)
 
-    pool.close()
-    pool.join()
+    crawl_pattern = ['/srv/www/htdocs/Data2San/',
+                    'p[0-9]{2,4}', 'Metabolomics',
+                    '(GCT)_[0-9]',
+                    '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
+                    '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
+
+    fcc.set_para('crawl_pattern', crawl_pattern)
+    fcc.run()
