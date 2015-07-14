@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DaemonParameterSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <UserName>Administrator</UserName>
+  <HostName>localhost</HostName>
+  <SpectrumFileCollectionID>WF_Spectrum_Export_MZML_0</SpectrumFileCollectionID>
+  <OriginalSpectrumFileCollectionID>WF_Spectrum_Export_MZML</OriginalSpectrumFileCollectionID>
+  <NumberOfFiles>0</NumberOfFiles>
+  <WorkflowAsXML>&lt;?xml version="1.0" encoding="utf-16" standalone="yes"?&gt;
+&lt;!--The Workflow--&gt;
+&lt;Workflow Name="WF_Spectrum_Export_MZML" Description="" CreationDate="10/16/2013 3:15:19 PM" CreatedFromUser="Administrator" WaitForEarlierJobs="False" ContinueJob="False"&gt;
+	&lt;WorkflowTree MergeSimilarIdentificationResults="False"&gt;
+		&lt;WorkflowNode ProcessingNodeNumber="0" ProcessingNodeName="SpectrumFilesNode" FriendlyName="Spectrum Files" Description="Selects the spectrum file(s) to be processed." MainVersion="1" MinorVersion="3" Guid="848160ba-2f76-46ca-a281-f7bf66990a5b" Category="Data Input" ParentProcessingNodeNumber="-1" ProteinIdentificationGroupID="0" Comment=""&gt;
+			&lt;ProcessingNodeInterfaces&gt;
+				&lt;ProcessingNodeInterface Kind="Output" Name="ISpectrumFilesSource" /&gt;
+				&lt;ProcessingNodeInterface Kind="Functional" Name="IProcessingNode" /&gt;
+				&lt;ProcessingNodeInterface Kind="Functional" Name="IStartProcessing" /&gt;
+			&lt;/ProcessingNodeInterfaces&gt;
+			&lt;ProcessingNodeParameters&gt;
+				&lt;ProcessingNodeParameter Name="SpectrumFileNames" FriendlyName="File Name(s)" Category="Input Data" IsAdvanced="False" IsValueSet="False"&gt;&lt;/ProcessingNodeParameter&gt;
+			&lt;/ProcessingNodeParameters&gt;
+		&lt;/WorkflowNode&gt;
+		&lt;WorkflowNode ProcessingNodeNumber="1" ProcessingNodeName="SpectrumSelectorNode" FriendlyName="Spectrum Selector" Description="Selects and retrieves the spectra for further processing." MainVersion="1" MinorVersion="25" Guid="238d2f70-3dd9-4e2b-a77d-f24933797cf6" Category="Spectrum &amp;amp; Feature Retrieval" ParentProcessingNodeNumber="0" ProteinIdentificationGroupID="1" Comment=""&gt;
+			&lt;ProcessingNodeInterfaces&gt;
+				&lt;ProcessingNodeInterface Kind="Input" Name="ISpectrumFilesSink" /&gt;
+				&lt;ProcessingNodeInterface Kind="Output" Name="ISpectrumSource" /&gt;
+				&lt;ProcessingNodeInterface Kind="Functional" Name="IProcessingNode" /&gt;
+			&lt;/ProcessingNodeInterfaces&gt;
+			&lt;ProcessingNodeParameters&gt;
+				&lt;ProcessingNodeParameter Name="PrecursorSelectionStrategy" FriendlyName="Precursor Selection" Category="1. General Settings" IsAdvanced="False" IsValueSet="True"&gt;Use MS1 Precursor&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UseNewPrecursorPeakReevaluation" FriendlyName="Use New Precursor Reevaluation" Category="1. General Settings" IsAdvanced="True" IsValueSet="True"&gt;True&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="LowerRetentionTimeLimit" FriendlyName="Lower RT Limit" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UpperRetentionTimeLimit" FriendlyName="Upper RT Limit" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="FirstScan" FriendlyName="First Scan" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="LastScan" FriendlyName="Last Scan" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="LowestChargeState" FriendlyName="Lowest Charge State" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="HighestChargeState" FriendlyName="Highest Charge State" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MinimumPrecursorMass" FriendlyName="Min. Precursor Mass" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;350 Da&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MaximumPrecursorMass" FriendlyName="Max. Precursor Mass" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;5000 Da&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="TotalIntensityThreshold" FriendlyName="Total Intensity Threshold" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MinimumPeakCount" FriendlyName="Minimum Peak Count" Category="2. Spectrum Properties Filter" IsAdvanced="False" IsValueSet="True"&gt;1&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MassAnalyzerFilter" FriendlyName="Mass Analyzer" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="False"&gt;Any&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MSOrderFilter" FriendlyName="MS Order" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="True"&gt;Is MS2&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="ActivationTypeFilter" FriendlyName="Activation Type" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="False"&gt;Any&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MinimumCollisionEnergy" FriendlyName="Min. Collision Energy" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="True"&gt;0&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="MaximumCollisionEnergy" FriendlyName="Max. Collision Energy" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="True"&gt;100&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="ScanTypeFilter" FriendlyName="Scan Type" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="True"&gt;Is Full&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="IonizationSourceFilter" FriendlyName="Ionization Source" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="False"&gt;Any&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="PolarityFilter" FriendlyName="Polarity Mode" Category="3. Scan Event Filters" IsAdvanced="False" IsValueSet="False"&gt;Any&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="SignalToNoiseThreshold" FriendlyName="S/N Threshold (FT-only)" Category="4. Peak Filters" IsAdvanced="False" IsValueSet="True"&gt;1.5&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UnrecognizedChargeReplacements" FriendlyName="Unrecognized Charge Replacements" Category="5. Replacements for Unrecognized Properties" IsAdvanced="False" IsValueSet="True"&gt;Automatic&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UnrecognizedMassAnalyzerReplacement" FriendlyName="Unrecognized Mass Analyzer Replacements" Category="5. Replacements for Unrecognized Properties" IsAdvanced="False" IsValueSet="True"&gt;ITMS&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UnrecognizedMsOrderReplacement" FriendlyName="Unrecognized MS Order Replacements" Category="5. Replacements for Unrecognized Properties" IsAdvanced="False" IsValueSet="True"&gt;MS2&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UnrecognizedActivationTypeReplacement" FriendlyName="Unrecognized Activation Type Replacements" Category="5. Replacements for Unrecognized Properties" IsAdvanced="False" IsValueSet="True"&gt;CID&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="UnrecognizedPolarityTypeReplacement" FriendlyName="Unrecognized Polarity Replacements" Category="5. Replacements for Unrecognized Properties" IsAdvanced="False" IsValueSet="True"&gt;+&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="PrecursorClippigRangeBefore" FriendlyName="Precursor Clipping Range Before" Category="6. Just for Testing" IsAdvanced="True" IsValueSet="True"&gt;2.5 Da&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="PrecursorClippigRangeAfter" FriendlyName="Precursor Clipping Range After" Category="6. Just for Testing" IsAdvanced="True" IsValueSet="True"&gt;5.5 Da&lt;/ProcessingNodeParameter&gt;
+			&lt;/ProcessingNodeParameters&gt;
+		&lt;/WorkflowNode&gt;
+		&lt;WorkflowNode ProcessingNodeNumber="2" ProcessingNodeName="SpectrumExportNode" FriendlyName="Spectrum Exporter" Description="Exports spectra to different file formats." MainVersion="1" MinorVersion="3" Guid="2ad453d3-093f-4acc-a4d2-ee5452a6d186" Category="Data Export" ParentProcessingNodeNumber="1" ProteinIdentificationGroupID="2" Comment=""&gt;
+			&lt;ProcessingNodeInterfaces&gt;
+				&lt;ProcessingNodeInterface Kind="Input" Name="ISpectrumSink" /&gt;
+				&lt;ProcessingNodeInterface Kind="Output" Name="ISpectrumSource" /&gt;
+				&lt;ProcessingNodeInterface Kind="Functional" Name="IProcessingNode" /&gt;
+			&lt;/ProcessingNodeInterfaces&gt;
+			&lt;ProcessingNodeParameters&gt;
+				&lt;ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IsValueSet="True"&gt;&lt;/ProcessingNodeParameter&gt;
+				&lt;ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IsValueSet="True"&gt;Mascot Generic Format (*.mgf)&lt;/ProcessingNodeParameter&gt;
+			&lt;/ProcessingNodeParameters&gt;
+		&lt;/WorkflowNode&gt;
+	&lt;/WorkflowTree&gt;
+&lt;/Workflow&gt;</WorkflowAsXML>
+</DaemonParameterSettings>
