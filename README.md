@@ -1,6 +1,6 @@
-#fcc - [FGCZ](http://www.fgcz.ethz.ch) Converter Control
+# fcc - [FGCZ](http://www.fgcz.ethz.ch) Converter Control
 
-#description
+# description
 fcc is a minimalistic workflow engine.
 The specification/properties of the program are as follow:
 - converting instrument files (e.g. RAW-files) to all kinds of formats
@@ -10,10 +10,30 @@ The specification/properties of the program are as follow:
 - configurable through xml file which means new converter by new tag in xml file NO CODE CHANGE!
 - stdout and errout logging
 
+# synopsis
+## on Microsoft OS
+```
+python fcc.py --dir=s:\ --output=runme.bat
+python fcc.py --dir=s:\ --pattern=".*VELOS_2.*" --exec --loop
+C:\FGCZ\fcc>c:\Python32\python.exe fcc.py --dir s:\ --output test.bat --pattern "^[Ss]:\\p[0-9]+\\.+"
+```
+
+## on UNIX
+
+```
+# if $PWD is in PATH
+fcc.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat
+```
+## arguments:
+-output writes a batch file to run later manually
+-dir specifies the directory to crawl
+-exec automatically triggers the execution of the generated converter commands
+-loop the FCC automatically restarts after it has finished one crawling round
+
 #author
-Simon Barkow-Oesterreicher and Christian Panse 
+Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.ethz.ch>
     
-#contact
+#maintainer
 <cp@fgcz.ethz.ch>
 
 # see also / references
@@ -51,7 +71,7 @@ run fcc on a linux box and fake the hostname
 ./fcc.py --output runme.bat --hostname fgcz-s-021
 ```
 
-#TODO
+# TODO
 
 ## use lxml 
 ## replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
@@ -62,3 +82,6 @@ run fcc on a linux box and fake the hostname
 
 
 
+# branches
+## linux
+should run out of the box on a linux machine.
