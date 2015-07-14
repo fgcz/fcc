@@ -367,7 +367,9 @@ class Fcc:
                         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
                  'nCPU': None, 
-                 'myExecFlag': False}
+                 'sleepDuration': 300,
+                 'loop': False,
+                 'exec': False}
 
     myProcessId = os.getpid()
     myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
@@ -378,9 +380,7 @@ class Fcc:
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
     myOutputFile = None
-    mySleep = 300
     myPattern = ".*"
-    myLoop = False
     matchingRules = list()
     converterOutputs = list()
 
@@ -451,7 +451,7 @@ class Fcc:
                 """
                 create the directory in the python way,
                 """
-                if not os.path.exists(converterDir) and self.parameters['myExecFlag']:
+                if not os.path.exists(converterDir) and self.parameters['exec']:
                     try:
                         os.mkdir(converterDir)
                     except:
@@ -480,12 +480,10 @@ class Fcc:
 
                     if not candCmdLineMD5 in self.processedCmdMD5Dict:
                         self.processedCmdMD5Dict[candCmdLineMD5] = candCmdLine
-                        if self.parameters['myExecFlag']:
-                            pool.map_async(myExecWorker0,
-                                [candCmdLine],
+                        if self.parameters['exec']:
+                            self.pool.map_async(myExecWorker0, [ candCmdLine ],
                                 callback=lambda i: logger.info("callback {0}".format(i)))
-                            logger.info(
-                                "added|cmd='{}' to pool".format(candCmdLine))
+                            logger.info("added|cmd='{}' to pool".format(candCmdLine))
 
 
     def run(self):
@@ -511,7 +509,7 @@ class Fcc:
         Simon 20140227 changed nCPUs
         """
         try:
-            if self.parameters['myExecFlag'] and self.parameters['nCPU'] is None:
+            if self.parameters['exec'] and self.parameters['nCPU'] is None:
                 self.parameters['nCPU'] = multiprocessing.cpu_count() - 1
 
             self.pool = multiprocessing.Pool(processes=self.parameters['nCPU'])
@@ -537,7 +535,7 @@ class Fcc:
 
             logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
 
-            if not self.parameters['myExecFlag']:
+            if not self.parameters['exec']:
                 with open(self.parameters['myOutputFile'], 'w') as f:
                     map(lambda cmd: f.write("{0}\n".format(self.processedCmdMD5Dict[cmd])), self.processedCmdMD5Dict.keys())
 
@@ -546,12 +544,11 @@ class Fcc:
                 print(msg)
                 logger.info(msg)
 
-            if not self.myLoop:
+            if not self.parameters['loop']:
                 sys.exit(0)
 
-            logger.info("sleeping||for {0} seconds ...".format(mySleep))
-            time.sleep(self.mySleep)
-
+            logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
+            time.sleep(self.parameters['sleepDuration'])
 
         self.pool.close()
         self.pool.join()
@@ -573,9 +570,9 @@ if __name__ == "__main__":
         if o == "--output":
             fcc.set_para('myOutputFile', value)
         elif o == "--exec":
-            fcc.set_para('myExecFlag', True)
+            fcc.set_para('exec', True)
         elif o == "--loop":
-            fcc.set_para('myLoop', True)
+            fcc.set_para('loop', True)
         elif o == "--pattern":
             fcc.set_para('myPattern', value)
         elif o == "--hostname":
@@ -592,7 +589,7 @@ if __name__ == "__main__":
 
     crawl_pattern = ['/srv/www/htdocs/Data2San/',
                     'p[0-9]{2,4}', 'Metabolomics',
-                    '(GCT)_[0-9]',
+                    '(GCT|G2HD)_[0-9]',
                     '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                     '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
 
