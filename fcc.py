@@ -127,7 +127,7 @@ logger = create_logger()
 class FgczCrawl(object):
 
 
-    def __init__(self, pattern=None):
+    def __init__(self, pattern=None, max_time_diff=None):
         """
         """
         self.para = {}
@@ -144,7 +144,10 @@ class FgczCrawl(object):
         self.regex_list = map(lambda p: re.compile(p), self.pattern_list)
 
         self.para['min_time_diff'] = 300
-        self.para['max_time_diff'] = 60 * 60 * 24 * 7 * 5  # five week
+        if not max_time_diff is None:
+            self.para['max_time_diff'] = max_time_diff
+        else:
+            self.para['max_time_diff'] = 60 * 60 * 24 * 7 * 5  # five week
         self.para['min_size'] = 100 * 1024  # 100K Bytes
 
     def dfs_(self, path, idx):
@@ -165,11 +168,13 @@ class FgczCrawl(object):
             elif os.path.exists(new_path):
                 res.append(new_path)
 
+        
         res = filter(lambda f: time.time() - os.path.getmtime(f) > self.para[
                      'min_time_diff'] and time.time() - os.path.getmtime(f) < self.para['max_time_diff'], res)
         res = filter(lambda f: os.path.getsize(f) >
                      self.para['min_size'] or os.path.isdir(f), res)
 
+        
         return res
 
     @property
@@ -296,14 +301,15 @@ def getDetailsFromFilePath(filePath):
     return fileDetails
 
 
-def matchFileToRules(fileDetails, rulesList):
+def matchFileToRules(fileDetails, rulesList, myHostname=None):
     """
     returns rules that are matched to instrument RAW-files.
     NOTE: date cmp function assumes YYYYMMDD!
     TODO: check if there are *EMPTY* elements in the returned list.
     """
     matchedRules = list()
-
+    if myHostname is None:
+        myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
     try:
         filename = fileDetails["filePath"]
 
@@ -366,7 +372,8 @@ class Fcc:
                         '(GCT)_[0-9]',
                         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
-                 'nCPU': None, 
+                 'nCPU': None,
+                 'max_time_diff': 60 * 60 * 24 * 7 * 4,
                  'sleepDuration': 300,
                  'loop': False,
                  'exec': False}
@@ -434,11 +441,12 @@ class Fcc:
         countDict = dict()
 
         file = os.path.normpath(file)
+       
         # logger.info("found: {0}".format(file))
         fileDir = os.path.dirname(file)
         fileDetails = getDetailsFromFilePath(file)
-
-        matchingRules = matchFileToRules(fileDetails, self.rulesList)
+         
+        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname=self.myHostname)
         if len(matchingRules) > 0:
             logger.debug(
                 "found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), file))
@@ -491,8 +499,7 @@ class Fcc:
 
         :return:
         """
-        crawler = FgczCrawl(pattern=self.parameters['crawl_pattern'])
-
+        crawler = FgczCrawl(pattern=self.parameters['crawl_pattern'], max_time_diff=self.parameters['max_time_diff'])
 
         if not os.path.exists(os.path.normpath(self.parameters['crawl_pattern'][0])):
             logger.error("{0} does not exsist.".format(self.parameters('crawl_pattern')[0]))
@@ -586,12 +593,14 @@ if __name__ == "__main__":
             usage()
             sys.exit(1)
 
+    #'(FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]',
 
-    crawl_pattern = ['/srv/www/htdocs/Data2San/',
-                    'p[0-9]{2,4}', 'Metabolomics',
-                    '(GCT|G2HD)_[0-9]',
-                    '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
-                    '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
+    crawl_pattern = ['S:', 'p1181',
+                     'Proteomics',
+                     '(VELOS)_[0-9]',
+                     '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',
+                     '[-a-zA-Z0-9_]+.(RAW|raw)$']
 
     fcc.set_para('crawl_pattern', crawl_pattern)
+    fcc.set_para('max_time_diff', 60 * 60 * 24 * 7 * 10) 
     fcc.run()
