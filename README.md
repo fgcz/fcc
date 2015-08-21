@@ -77,11 +77,9 @@ run fcc on a linux box and fake the hostname
 ## replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
 ## provide cmd argv for log file name
 ## unit test
-##make Fcc class
-
-
 
 
 # branches
 ## linux
+## windows
 should run out of the box on a linux machine.
