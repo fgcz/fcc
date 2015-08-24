@@ -97,7 +97,6 @@ import subprocess
 import shlex
 import time
 import datetime
-import getopt
 import sys
 import re
 import xml.dom.minidom
@@ -544,7 +543,7 @@ class Fcc:
             logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
 
             if not self.parameters['exec']:
-                with open(self.parameters['myOutputFile'], 'w') as f:
+                with open(self.parameters['myOutputFile'], 'a') as f:
                     map(lambda cmd: f.write("{0}\n".format(self.processedCmdMD5Dict[cmd])), self.processedCmdMD5Dict.keys())
 
                 msg = "wrote {0} lines to file to '{1}'.".format(len(self.processedCmdMD5Dict.keys()),
