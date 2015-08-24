@@ -301,13 +301,15 @@ def getDetailsFromFilePath(filePath):
     return fileDetails
 
 
-def matchFileToRules(fileDetails, rulesList, hostname=None):
+def matchFileToRules(fileDetails, rulesList, myHostname=None):
     """
     returns rules that are matched to instrument RAW-files.
     NOTE: date cmp function assumes YYYYMMDD!
     TODO: check if there are *EMPTY* elements in the returned list.
     """
     matchedRules = list()
+    if myHostname is None:
+        myHostname = str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
     try:
         filename = fileDetails["filePath"]
 
@@ -340,7 +342,7 @@ def matchFileToRules(fileDetails, rulesList, hostname=None):
                 (fileDetails["date"] <= rule["endDate"]) and
                 (fileDetails["extension"] == rule["fromFileExt"]) and
                 (regex.match(fileDetails["filePath"])) and
-                    (re.search(hostname, rule["hostname"]))):
+                    (re.search(myHostname, rule["hostname"]))):
                 if (regex2.match(fileDetails["filePath"])):
                     logger.debug("skipping '" + filename + "' because of recursion warning." + str(
                         rule["converterDir"]) + " is already in the path.")
@@ -372,13 +374,12 @@ class Fcc:
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
                  'nCPU': None,
                  'max_time_diff': 60 * 60 * 24 * 7 * 4,
-                 'hostname': str(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0]),
                  'sleepDuration': 300,
                  'loop': False,
                  'exec': False}
 
     myProcessId = os.getpid()
-
+    myHostname = "{0}".format(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
@@ -430,7 +431,8 @@ class Fcc:
 
     def process(self, file):
         """
-
+        computes a match and executes cmd (add to spool dir)
+        
         :return:
         """
         # countDict is used for some kind of rule check. TODO(cp):??
@@ -441,8 +443,10 @@ class Fcc:
         # logger.info("found: {0}".format(file))
         fileDir = os.path.dirname(file)
         fileDetails = getDetailsFromFilePath(file)
+
          
-        matchingRules = matchFileToRules(fileDetails, self.rulesList, hostname=self.parameter['hostname'])
+        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname=self.myHostname)
+
         if len(matchingRules) > 0:
             logger.debug(
                 "found {0} rules matching rule(s) for file '{1}'.".format(len(matchingRules), file))
@@ -515,8 +519,9 @@ class Fcc:
             if self.parameters['exec'] and self.parameters['nCPU'] is None:
                 self.parameters['nCPU'] = multiprocessing.cpu_count() - 1
 
-            self.pool = multiprocessing.Pool(processes=self.parameters['nCPU'])
-            logger.info("created pool having {0} processes.".format(self.parameters['nCPU']))
+
+            self.pool = multiprocessing.Pool(processes=self.parameters['ncpu'])
+            logger.info("created pool having {0} processes.".format(self.parameters['ncpu']))
 
         except:
             logger.error("could not create pool.")
@@ -579,9 +584,9 @@ if __name__ == "__main__":
         elif o == "--pattern":
             fcc.set_para('myPattern', value)
         elif o == "--hostname":
-            fcc.set_para('hostname', value)
+            myHostname = value
         elif o == "--ncpu":
-            fcc.set_para('nCPU',  int(value))
+            fcc.set_para('ncpu',  int(value))
         elif o in ("--help"):
             usage()
             sys.exit(0)
@@ -589,10 +594,7 @@ if __name__ == "__main__":
             usage()
             sys.exit(1)
 
-
-    # assume that the drive S: is mounted
-    crawl_pattern = ['S:',
-                     'p[0-9]{3,4}',
+    crawl_pattern = ['S:', 'p[0-9]+',
                      'Proteomics',
                      '(FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]',
                      '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',
