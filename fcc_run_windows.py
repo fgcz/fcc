@@ -12,7 +12,7 @@ if __name__ == "__main__":
         usage()
         sys.exit(2)
 
-    fcc = Fcc()
+    fcc = fcc.Fcc()
 
     for o, value in opts:
         if o == "--output":
