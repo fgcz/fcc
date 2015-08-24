@@ -21,8 +21,8 @@ C:\FGCZ\fcc>c:\Python32\python.exe fcc.py --dir s:\ --output test.bat --pattern 
 ## on UNIX
 
 ```
-# if $PWD is in PATH
-fcc.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat
+# use python 2.7.x
+python fcc_run_linux.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat
 ```
 ## arguments:
 -output writes a batch file to run later manually
@@ -80,6 +80,6 @@ run fcc on a linux box and fake the hostname
 
 
 # branches
-## linux
-## windows
+## fgcz
+
 should run out of the box on a linux machine.
