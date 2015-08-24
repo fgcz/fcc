@@ -1,4 +1,6 @@
 
+import getopt
+import sys
 import fcc
 
 if __name__ == "__main__":
