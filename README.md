@@ -40,6 +40,8 @@ PMID: 23311610
 
 # configuration
 
+[the current FCGZ configuration can be found here.](http://fgcz-data.uzh.ch/config/fcc_config.xml)
+
 ```xml
  <controllerRuleSet>
     <rule converterID='000' 
@@ -61,7 +63,6 @@ PMID: 23311610
     </converter>
 </converterList>
 ```
-[the current FCGZ configuration can be found here.](http://fgcz-data.uzh.ch/config/fcc_config.xml)
 
 # TODO
 
