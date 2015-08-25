@@ -67,10 +67,11 @@ Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.et
 
 # TODO
 
-- use lxml / replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
+- use [lxml](http://lxml.de/) or even better use [YAML](http://yaml.org/) to ease implementation/configuration
 - provide cmd argv for log file name
-- unit test 
-- ensure that no process is killed by CTRL-C
+- unit test - no glue how to do that 
+- ensure that no process is killed by CTRL-C. add a `pool wait` at the right position on the code when CTRL-C is pressed or give at least a warning.
+- write a  pid file to ensure that only one fcc is running
 
 # branches
 - [fgcz](https://github.com/fgcz/fcc) (default)
