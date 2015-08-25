@@ -563,4 +563,9 @@ class Fcc:
 
 # MAIN
 if __name__ == "__main__":
-    pass
+    try:
+        import yaml
+        fcc = Fcc()
+        print yaml.dump(fcc.read_config(url='http://fgcz-data.uzh.ch/config/fcc_config.xml'))
+    except:
+        pass
