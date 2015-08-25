@@ -23,10 +23,10 @@ c:\Python27\python.exe fcc_run_windows.py --output __runme.bat --ncpu 2 --exec
 $ python fcc_run_linux.py --hostname fgcz-s-021 --output out-20150824.bash --ncpu 1 --exec --loop
 ```
 ## arguments:
--output writes a batch file to run later manually
--dir specifies the directory to crawl
--exec automatically triggers the execution of the generated converter commands
--loop the FCC automatically restarts after it has finished one crawling round
+
+- ```--output <file>``` writes a batch file to run later manually
+- ``--exec``` automatically triggers the execution of the generated converter commands
+- ```--loop``` the FCC automatically restarts after it has finished one crawling round
 
 #author
 Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.ethz.ch>
