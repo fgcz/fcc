@@ -61,17 +61,15 @@ PMID: 23311610
     </converter>
 </converterList>
 ```
-    
+[the current FCGZ configuration can be found here.](http://fgcz-data.uzh.ch/config/fcc_config.xml)
 
 # TODO
 
-## use lxml 
-## replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
+## use lxml / replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
 ## provide cmd argv for log file name
-## unit test
-
+## unit test 
+## ensure that no process is killed by CTRL-C
 
 # branches
 ## fgcz
 
-should run out of the box on a linux machine.
