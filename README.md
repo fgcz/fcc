@@ -24,9 +24,11 @@ $ python fcc_run_linux.py --hostname fgcz-s-021 --output out-20150824.bash --ncp
 ```
 ## arguments:
 
-- ```--output <file>``` writes a batch file to run later manually
-- ``--exec``` automatically triggers the execution of the generated converter commands
-- ```--loop``` the FCC automatically restarts after it has finished one crawling round
+- `--output <file>` writes a batch file to run later manually
+- `--exec` automatically triggers the execution of the generated converter commands
+- `--loop` the FCC automatically restarts after it has finished one crawling round
+- `--ncpu` number of jobs should be used
+- `--hostname <configfile provided hostname` tells fcc which host configuration should be used.
 
 #author
 Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.ethz.ch>
