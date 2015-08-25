@@ -35,7 +35,7 @@ Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.et
 <cp@fgcz.ethz.ch>
 
 # see also / references
-- [doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract), [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/),
+-[doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract), [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/),
 PMID: 23311610
 
 # configuration
@@ -66,11 +66,11 @@ PMID: 23311610
 
 # TODO
 
-## use lxml / replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
-## provide cmd argv for log file name
-## unit test 
-## ensure that no process is killed by CTRL-C
+-use lxml / replace XML fcc_config by something easier to config, e.g. see rc files in obsd.
+-provide cmd argv for log file name
+-unit test 
+-ensure that no process is killed by CTRL-C
 
 # branches
-## fgcz
+- [fgcz](https://github.com/fgcz/fcc) (default)
 
