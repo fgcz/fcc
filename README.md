@@ -30,10 +30,12 @@ $ python fcc_run_linux.py --hostname fgcz-s-021 --output out-20150824.bash --ncp
 - `--ncpu` number of jobs should be used
 - `--hostname <host configuration` tells fcc which host configuration should be used.
 
-#author
+#authors
+
 Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.ethz.ch>
     
 #maintainer
+
 <cp@fgcz.ethz.ch>
 
 
