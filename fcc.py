@@ -209,6 +209,7 @@ def unlink_pidfile():
 
 
 def signal_handler(signal, frame):
+    unlink_pidfile()
     logger.error("sys exit 1; signal={0}; frame={1}".format(signal, frame))
     sys.exit(1)
 
