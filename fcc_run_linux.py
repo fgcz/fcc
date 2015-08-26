@@ -1,3 +1,4 @@
+import os
 import getopt
 import sys
 import fcc
@@ -11,9 +12,9 @@ def create_pidfile():
             print "{0} already exists.  exit.".format(pidfile)
             sys.exit(1)
         else:
-            with open(pidfile, 'a') as f:
+            with open(pidfile, 'w') as f:
                 f.write("fcc is running")
-    except:
+    except: 
         print "creating {0} failed.".format(pidfile)
         sys.exit(1)
 
@@ -31,7 +32,6 @@ if __name__ == "__main__":
                                    "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
     except getopt.GetoptError as err:
         print (str(err))
-        usage()
         sys.exit(2)
 
     fcc = fcc.Fcc()

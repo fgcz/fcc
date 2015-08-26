@@ -544,7 +544,7 @@ class Fcc:
                 logger.info(msg)
 
             if not self.parameters['loop']:
-                sys.exit(0)
+		return
 
             logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
             time.sleep(self.parameters['sleepDuration'])
