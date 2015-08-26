@@ -2,7 +2,30 @@ import getopt
 import sys
 import fcc
 
+import tempfile
+
+def create_pidfile():
+    try:
+        pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
+        if os.path.isfile(pidfile):
+            print "{0} already exists.  exit.".format(pidfile)
+            sys.exit(1)
+        else:
+            with open(pidfile, 'a') as f:
+                f.write("fcc is running")
+    except:
+        print "creating {0} failed.".format(pidfile)
+        sys.exit(1)
+
+def unlink_pidfile():
+    pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
+    try:
+        os.unlink(pidfile)
+    except:
+        print "removing '{0}' failed".format(pidfile)
+
 if __name__ == "__main__":
+    create_pidfile()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hoepl", [
                                    "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
@@ -40,4 +63,6 @@ if __name__ == "__main__":
         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
 
     fcc.set_para('crawl_pattern', crawl_pattern)
+
     fcc.run()
+    unlink_pidfile()

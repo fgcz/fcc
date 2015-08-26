@@ -98,7 +98,6 @@ import multiprocessing
 import logging
 import logging.handlers
 import hashlib
-import tempfile
 
 
 def create_logger(name="fcc", address=("130.60.81.148", 514)):
@@ -187,29 +186,9 @@ class FgczCrawl(object):
 
         return files
 
-def create_pidfile():
-    try:
-        pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
-        if os.path.isfile(pidfile):
-            print "{0} already exists.  exit.".format(pidfile)
-            sys.exit(1)
-        else:
-            with open(pidfile, 'a') as f:
-                f.write("fcc is running")
-    except:
-        print "creating {0} failed.".format(pidfile)
-        sys.exit(1)
-
-def unlink_pidfile():
-    pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
-    try:
-        os.unlink(pidfile)
-    except:
-        print "removing '{0}' failed".format(pidfile)
 
 
 def signal_handler(signal, frame):
-    unlink_pidfile()
     logger.error("sys exit 1; signal={0}; frame={1}".format(signal, frame))
     sys.exit(1)
 
@@ -378,7 +357,6 @@ def usage():
 class Fcc:
     """
     """
-    create_pidfile()
     parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml",
                  'crawl_pattern': ['/srv/www/htdocs/Data2San/',
                         'p[0-9]{2,4}', 'Metabolomics',
@@ -566,7 +544,6 @@ class Fcc:
                 logger.info(msg)
 
             if not self.parameters['loop']:
-                unlink_pidfile()
                 sys.exit(0)
 
             logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
@@ -586,4 +563,3 @@ if __name__ == "__main__":
         print "yaml does not seems to run. exit"
         pass
     
-    unlink_pidfile()
