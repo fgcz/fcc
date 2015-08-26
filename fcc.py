@@ -30,16 +30,11 @@ NAME
 
 SYNOPSIS
     on Microsoft OS
-    python fcc.py --dir=s:\ --output=runme.bat
-    python fcc.py --dir=s:\ --pattern=".*VELOS_2.*" --exec --loop
-    C:\FGCZ\fcc>c:\Python32\python.exe fcc.py --dir s:\ --output test.bat --pattern "^[Ss]:\\p[0-9]+\\.+"
 
     on UNIX
-    fcc.py --dir=/srv/www/htdocs/Data2San/p720 --output=runme.bat
 
     arguments:
     --output writes a batch file to run later manually
-    --dir specifies the directory to crawl
     --exec automatically triggers the execution of the generated converter commands
     --loop the FCC automatically restarts after it has finished one crawling round
 
@@ -59,9 +54,8 @@ AUTHOR
     Simon Barkow-Oesterreicher and Christian Panse <cp@fgcz.ethz.ch>
 
 SEE ALSO
+    https://github.com/fgcz/fcc
     doi:10.1186/1751-0473-8-3
-
-
 
 HISTORY
     2008-10-28 2008 (SB)
@@ -86,7 +80,7 @@ HISTORY
     2012-12-04 handles dirs as files, e.g. conversion of waters.com instruments raw folders (SB,CP)
     2015-07-07 on github.com
 """
-__version__ = "http://fgcz-svn.uzh.ch/repos/fgcz/stable/proteomics/fcc/fcc.py"
+__version__ = "https://github.com/fgcz/fcc"
 
 import os
 import urllib
@@ -104,6 +98,7 @@ import multiprocessing
 import logging
 import logging.handlers
 import hashlib
+import tempfile
 
 
 def create_logger(name="fcc", address=("130.60.81.148", 514)):
@@ -192,11 +187,29 @@ class FgczCrawl(object):
 
         return files
 
+def create_pidfile():
+    try:
+        pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
+        if os.path.isfile(pidfile):
+            print "{0} already exists.  exit.".format(pidfile)
+            sys.exit(1)
+        else:
+            with open(pidfile, 'a') as f:
+                f.write("fcc is running")
+    except:
+        print "creating {0} failed.".format(pidfile)
+        sys.exit(1)
+
+def unlink_pidfile():
+    pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
+    try:
+        os.unlink(pidfile)
+    except:
+        print "removing '{0}' failed".format(pidfile)
 
 
 def signal_handler(signal, frame):
-    logger.error(
-        ("sys exit 1; signal=" + str(signal) + "; frame=" + str(frame)))
+    logger.error("sys exit 1; signal={0}; frame={1}".format(signal, frame))
     sys.exit(1)
 
 
@@ -363,8 +376,8 @@ def usage():
 
 class Fcc:
     """
-
     """
+    create_pidfile()
     parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml",
                  'crawl_pattern': ['/srv/www/htdocs/Data2San/',
                         'p[0-9]{2,4}', 'Metabolomics',
@@ -552,6 +565,7 @@ class Fcc:
                 logger.info(msg)
 
             if not self.parameters['loop']:
+                unlink_pidfile()
                 sys.exit(0)
 
             logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
@@ -568,4 +582,7 @@ if __name__ == "__main__":
         fcc = Fcc()
         print yaml.dump(fcc.read_config(url='http://fgcz-data.uzh.ch/config/fcc_config.xml'))
     except:
+        print "yaml does not seems to run. exit"
         pass
+    
+    unlink_pidfile()
