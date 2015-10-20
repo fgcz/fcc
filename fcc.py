@@ -167,7 +167,7 @@ class FgczCrawl(object):
         res = filter(lambda f: os.path.getsize(f) >
                      self.para['min_size'] or os.path.isdir(f), res)
 
-        
+
         return res
 
     @property
@@ -293,7 +293,7 @@ def getDetailsFromFilePath(filePath):
     return fileDetails
 
 
-def matchFileToRules(fileDetails, rulesList, myHostname=None):
+def matchFileToRules(fileDetails, rulesList, myHostname = None):
     """
     returns rules that are matched to instrument RAW-files.
     NOTE: date cmp function assumes YYYYMMDD!
@@ -370,7 +370,7 @@ class Fcc:
                  'exec': False}
 
     myProcessId = os.getpid()
-    myHostname = "{0}".format(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+    parameters['hostname'] = "{0}".format(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
@@ -436,7 +436,7 @@ class Fcc:
         fileDetails = getDetailsFromFilePath(file)
 
          
-        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname=self.myHostname)
+        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname = self.parameters['hostname'])
 
         if len(matchingRules) > 0:
             logger.debug(

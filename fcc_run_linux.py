@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 import getopt
 import sys
@@ -26,7 +27,7 @@ def unlink_pidfile():
         print "removing '{0}' failed".format(pidfile)
 
 if __name__ == "__main__":
-    create_pidfile()
+    #create_pidfile()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hoepl", [
                                    "help", "output=", "exec", "pattern=", "loop", "hostname=", "ncpu="])
@@ -46,7 +47,7 @@ if __name__ == "__main__":
         elif o == "--pattern":
             fcc.set_para('myPattern', value)
         elif o == "--hostname":
-            myHostname = value
+            fcc.set_para('hostname', value)
         elif o == "--ncpu":
             fcc.set_para('ncpu',  int(value))
         elif o in ("--help"):
@@ -57,12 +58,14 @@ if __name__ == "__main__":
             sys.exit(1)
 
     crawl_pattern = ['/srv/www/htdocs/Data2San/',
-        'p[0-9]{2,4}', 'Metabolomics',
-        '(GCT|G2HD)_[0-9]',
+        'p[0-9]{2,4}', '(Metabolomics|Proteomics)',
+        '(EXTERNAL|GCT|G2HD)_[0-9]',
         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)']
 
     fcc.set_para('crawl_pattern', crawl_pattern)
+    #fcc.set_para('max_time_diff', 60 * 60 * 24 * 7 * 10)
+
 
     fcc.run()
-    unlink_pidfile()
+    #unlink_pidfile()
