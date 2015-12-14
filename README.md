@@ -73,10 +73,10 @@ Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.et
 - ensure that no process is killed by CTRL-C. add a `pool wait` at the right position on the code when CTRL-C is pressed or give at least a warning.
 - write a  pid file to ensure that only one fcc is running
 
-# branches
+# Branches
 - [fgcz](https://github.com/fgcz/fcc) (default)
 
-# see also 
+# See also 
 
 - FCC - An automated rule-based processing tool for life science data.
 Barkow-Oesterreicher S1, Türker C, Panse C. Source Code Biol Med. 2013 Jan 11;8(1):3. doi: 10.1186/1751-0473-8-3. [doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract), [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/),
