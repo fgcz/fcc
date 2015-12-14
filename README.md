@@ -81,8 +81,7 @@ Simon Barkow-Oesterreicher <simon@uberchord.com> and Christian Panse <cp@fgcz.et
 - FCC - An automated rule-based processing tool for life science data.
 Barkow-Oesterreicher S1, Türker C, Panse C. Source Code Biol Med. 2013 Jan 11;8(1):3. doi: 10.1186/1751-0473-8-3. [doi:10.1186/1751-0473-8-3](http://www.scfbm.org/content/8/1/3/abstract), [PMC3614436](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3614436/),
 PMID: 23311610
+- [FCC configuration @ FGCZ](http://fgcz-data.uzh.ch/config/fcc_config.xml)
 
-- [FCC @ fgcz configuration](http://fgcz-data.uzh.ch/config/fcc_config.xml)
-- 
 # Have Fun
 ![Mt Pico](https://lh4.googleusercontent.com/-Y71pZMTpDHo/VVBtoGacseI/AAAAAAAACJA/kw6Lli7wTlA/w1052-h884-no/15%2B-%2B1)
