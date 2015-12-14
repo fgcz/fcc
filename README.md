@@ -1,7 +1,7 @@
 # FCC - [FGCZ](http://www.fgcz.ethz.ch) Converter Control
 
 # Description
-fcc is a minimalistic workflow engine.
+FCC is a minimalistic workflow engine.
 The specification/properties of the program are as follow:
 - converting instrument files (e.g. RAW-files) to all kinds of formats
 - being generic
@@ -81,5 +81,3 @@ Barkow-Oesterreicher S1, Türker C, Panse C. Source Code Biol Med. 2013 Jan 11;8
 PMID: 23311610
 - [FCC configuration @ FGCZ](http://fgcz-data.uzh.ch/config/fcc_config.xml)
 
-# Have Fun
-![Mt Pico](https://lh4.googleusercontent.com/-Y71pZMTpDHo/VVBtoGacseI/AAAAAAAACJA/kw6Lli7wTlA/w1052-h884-no/15%2B-%2B1)
