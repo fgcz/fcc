@@ -5,10 +5,10 @@ fcc is a minimalistic workflow engine.
 The specification/properties of the program are as follow:
 - converting instrument files (e.g. RAW-files) to all kinds of formats
 - being generic
-- follows fgcz granularity: project, user, instrument, time range
-- multi platform, host, task
+- follows FGCZ hierarch storage granularity: project, user, instrument, time range
+- multi- platform, host, task
 - configurable through xml file which means new converter by new tag in xml file NO CODE CHANGE!
-- stdout and errout logging
+- stdout and errout through syslog 
 
 # Synopsis
 ## on Microsoft OS
@@ -18,7 +18,7 @@ c:\Python27\python.exe fcc_run_windows.py --output __runme.bat --ncpu 2 --exec
 
 ## on UNIX
 
-```
+```sh
 # use python 2.7.x
 $ python fcc_run_linux.py --hostname fgcz-s-021 --output out-20150824.bash --ncpu 1 --exec --loop
 ```
