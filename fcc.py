@@ -10,7 +10,7 @@
 # Copyright 2008-2015
 # Christian Panse <cp@fgcz.ethz.ch>
 # Simon Barkow-Oesterreicher 
-# Witold Eric Wolski <wew@fgcz.ethz.ch>
+# Witold Eryk Wolski <wew@fgcz.ethz.ch>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -98,7 +98,6 @@ import multiprocessing
 import logging
 import logging.handlers
 import hashlib
-import tempfile
 
 
 def create_logger(name="fcc", address=("130.60.81.148", 514)):
@@ -168,7 +167,7 @@ class FgczCrawl(object):
         res = filter(lambda f: os.path.getsize(f) >
                      self.para['min_size'] or os.path.isdir(f), res)
 
-        
+
         return res
 
     @property
@@ -186,6 +185,7 @@ class FgczCrawl(object):
         logger.debug("found {0} files in {1}.".format(len(files), self.pattern_list[0]))
 
         return files
+
 
 
 def signal_handler(signal, frame):
@@ -293,7 +293,7 @@ def getDetailsFromFilePath(filePath):
     return fileDetails
 
 
-def matchFileToRules(fileDetails, rulesList, myHostname=None):
+def matchFileToRules(fileDetails, rulesList, myHostname = None):
     """
     returns rules that are matched to instrument RAW-files.
     NOTE: date cmp function assumes YYYYMMDD!
@@ -363,14 +363,14 @@ class Fcc:
                         '(GCT)_[0-9]',
                         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
-                 'nCPU': None,
+                 'nCPU': 1,
                  'max_time_diff': 60 * 60 * 24 * 7 * 4,
                  'sleepDuration': 300,
                  'loop': False,
                  'exec': False}
 
     myProcessId = os.getpid()
-    myHostname = "{0}".format(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
+    parameters['hostname'] = "{0}".format(socket.gethostbyaddr(socket.gethostname())[0].split('.')[0])
 
     signal.signal(signal.SIGINT, signal_handler)
     myRootDir = None
@@ -436,7 +436,7 @@ class Fcc:
         fileDetails = getDetailsFromFilePath(file)
 
          
-        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname=self.myHostname)
+        matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname = self.parameters['hostname'])
 
         if len(matchingRules) > 0:
             logger.debug(
@@ -516,6 +516,7 @@ class Fcc:
 
         except:
             logger.error("could not create pool.")
+            print sys.exc_info()
             sys.exit(1)
 
         while True:
@@ -544,7 +545,7 @@ class Fcc:
                 logger.info(msg)
 
             if not self.parameters['loop']:
-                sys.exit(0)
+		return
 
             logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
             time.sleep(self.parameters['sleepDuration'])
