@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     crawl_pattern = ['S:', 'p[0-9]+',
                      'Proteomics',
-                     '(FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]',
+                     '(EXTERNAL|FUSION|G2HD|GCT|ORBI|QEXACTIVE|QEXACTIVEHF|QTOF|QTRAP|T100|TOFTOF|TRIPLETOF|TSQ|VELOS)_[0-9]',
                      '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',
                      '[-a-zA-Z0-9_]+.(RAW|raw)$']
 
