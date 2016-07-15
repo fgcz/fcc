@@ -363,7 +363,7 @@ class Fcc:
                         '(GCT)_[0-9]',
                         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
-                 'nCPU': None,
+                 'nCPU': 1,
                  'max_time_diff': 60 * 60 * 24 * 7 * 4,
                  'sleepDuration': 300,
                  'loop': False,
@@ -516,6 +516,7 @@ class Fcc:
 
         except:
             logger.error("could not create pool.")
+            print sys.exc_info()
             sys.exit(1)
 
         while True:
