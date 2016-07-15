@@ -357,7 +357,7 @@ def usage():
 class Fcc:
     """
     """
-    parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml",
+    parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml", 'readme_url': "http://fgcz-s-021.uzh.ch/config/fcc_readme.txt",
                  'crawl_pattern': ['/srv/www/htdocs/Data2San/',
                         'p[0-9]{2,4}', 'Metabolomics',
                         '(GCT)_[0-9]',
