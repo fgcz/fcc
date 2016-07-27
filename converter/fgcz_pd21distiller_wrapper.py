@@ -1,12 +1,7 @@
-# python script for converting Thermo raw files to scpectrum files with Proteome Discoverer Daemon
+# python script for converting Thermo raw files to scpectrum files with Proteome Discoverer Daemon 21
 # Prerequisite is a running Proteome Dicoverer process
-# Simon Barkow-Oesterreicher, Functional Genomic Center Zurich, 20140226 
-#   
-# $HeadURL: http://fgcz-svn.uzh.ch/repos/fgcz/stable/proteomics/fcc/fgcz_pd2distiller_wrapper.py $
-# $Id: fgcz_pd2distiller_wrapper.py 7385 2015-04-16 11:46:29Z cpanse $
-# $Date: 2015-04-16 13:46:29 +0200 (Thu, 16 Apr 2015) $
-# $Author: cpanse $
 
+# Author: Christian Panse <cp@fgcz.ethz.ch>
 
 from random import randint
 import sys
