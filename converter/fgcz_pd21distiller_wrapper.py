@@ -1,7 +1,12 @@
-# python script for converting Thermo raw files to scpectrum files with Proteome Discoverer Daemon 21
+# python script for converting Thermo raw files to scpectrum files with Proteome Discoverer Daemon
 # Prerequisite is a running Proteome Dicoverer process
+# Simon Barkow-Oesterreicher, Functional Genomic Center Zurich, 20140226 
+#   
+# $HeadURL: http://fgcz-svn.uzh.ch/repos/fgcz/stable/proteomics/fcc/fgcz_pd2distiller_wrapper.py $
+# $Id: fgcz_pd2distiller_wrapper.py 7385 2015-04-16 11:46:29Z cpanse $
+# $Date: 2015-04-16 13:46:29 +0200 (Thu, 16 Apr 2015) $
+# $Author: cpanse $
 
-# Author: Christian Panse <cp@fgcz.ethz.ch>
 
 from random import randint
 import sys
@@ -24,7 +29,7 @@ def replace_title(spectrumFile, para):
 
     pattern="(^TITLE=File:).(\"[-_:\.\\a-zA-Z]{3,}\")(;\ Spe.+)$"
     p = re.compile(pattern)
-    patternFile = ".*_(ETD|EThcD|HCD)mgf.*"
+    patternFile = ".*_(ETD|EThcD|HCD|ITETD|ITCID|ITHCD|ITEThcD)_.*mgf"
     pFile = re.compile(patternFile)
     
     try:
@@ -33,6 +38,7 @@ def replace_title(spectrumFile, para):
         raise
 
     try:
+        # create an empty file
         fw0 = open(os.path.normpath(para['outputFile']), 'w')
         fw0.close()
     except:
@@ -42,8 +48,10 @@ def replace_title(spectrumFile, para):
         matchFile = pFile.search(spectrumFile)
         if matchFile is None:
             return
-        
-        fw = open(os.path.normpath(para['outputFile'].replace(".mgf", "_{0}.mgf".format(matchFile.group(1)))), 'w')
+
+        mgfFilename = os.path.normpath(para['outputFile'].replace(".mgf", "_{0}.mgf".format(matchFile.group(1))))
+        print "mgfFilename =", mgfFilename
+        fw = open(mgfFilename, 'w')
         
         for line in fr:
             if line.startswith("TITLE="):
@@ -68,6 +76,8 @@ def post_process(para):
             fullPath = os.path.join(root, name)
            
             if name.endswith(para['fileExtension']) and os.path.getsize(fullPath) > 10000:
+                print
+                print "adding file", name, "for post processing ..."
                 outFiles.append(name)
 
     for fileName in outFiles:
@@ -87,7 +97,7 @@ copy {0} {1}
 """.format(os.path.normpath(para['inputFile']),
            os.path.normpath(para['tempFileName']),
            os.path.normpath(para['pdCmd']),
-           os.path.normpath("c:/FGCZ/fcc/pd/p1352_AllFT_mgfs.pdProcessingWF"),
+           os.path.normpath("c:/FGCZ/fcc/pd/p1352_AllIT_FT_mgfs.pdProcessingWF"),
            os.path.normpath("c:/FGCZ/fcc/pd/CWF_minimal.pdConsensusWF")) 
 
 
@@ -130,4 +140,6 @@ if __name__ == "__main__":
     #para['tempPath']='D:\\tmp\\tmpownkuk-pd21'
     compose_batch_file(para)
     post_process(para)
+
+    print "python script done."
     
