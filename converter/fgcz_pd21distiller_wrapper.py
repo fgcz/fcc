@@ -29,7 +29,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with recmap.  If not, see <http://www.gnu.org/licenses/>.
+# along with fcc.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import shutil
@@ -49,7 +49,7 @@ def replace_title(spectrumFile, para):
     """
     pattern = "(^TITLE=File:).(\"[-_:\.\\a-zA-Z]{3,}\")(;\ Spe.+)$"
     p = re.compile(pattern)
-    patternFile = ".*_(ETD|EThcD|HCD|ITETD|ITCID|ITHCD|ITEThcD)_.*mgf"
+    patternFile = ".*_(FTETD|FTEThcD|FTHCD|ITETD|ITCID|ITHCD|ITEThcD)_.*mgf"
     pFile = re.compile(patternFile)
 
     try:
