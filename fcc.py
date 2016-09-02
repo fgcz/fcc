@@ -340,6 +340,7 @@ def matchFileToRules(fileDetails, rulesList, myHostname = None):
                         rule["converterDir"]) + " is already in the path.")
                     continue
                 matchedRules.append(rule)
+		print rule
         except:
             pass
     return matchedRules
@@ -411,7 +412,7 @@ class Fcc:
             logger.error("The XML config file is missing or malformed. Error: ")
             logger.error(sys.exc_info()[1])
             print ("Unexpected error:", sys.exc_info()[1])
-            sys.exit(1)
+            raise
 
         # TODO(cp): use lxml
         try:

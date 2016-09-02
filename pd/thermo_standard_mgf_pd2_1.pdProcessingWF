@@ -190,7 +190,7 @@
 			</ConnectionPoints>
 			<ProcessingNodeParameters>
 				<ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
-				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
+				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">_FTETD</ProcessingNodeParameter>
 				<ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="Unknown" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">Mascot Generic Format (*.mgf)</ProcessingNodeParameter>
 			</ProcessingNodeParameters>
 		</WorkflowNode>
@@ -273,7 +273,7 @@
 			</ConnectionPoints>
 			<ProcessingNodeParameters>
 				<ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
-				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
+				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">_ITCID</ProcessingNodeParameter>
 				<ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="Unknown" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">Mascot Generic Format (*.mgf)</ProcessingNodeParameter>
 			</ProcessingNodeParameters>
 		</WorkflowNode>
@@ -356,7 +356,7 @@
 			</ConnectionPoints>
 			<ProcessingNodeParameters>
 				<ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
-				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
+				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">_FTHCD</ProcessingNodeParameter>
 				<ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="Unknown" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">Mascot Generic Format (*.mgf)</ProcessingNodeParameter>
 			</ProcessingNodeParameters>
 		</WorkflowNode>
@@ -439,7 +439,7 @@
 			</ConnectionPoints>
 			<ProcessingNodeParameters>
 				<ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
-				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
+				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">_ITHCD</ProcessingNodeParameter>
 				<ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="Unknown" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">Mascot Generic Format (*.mgf)</ProcessingNodeParameter>
 			</ProcessingNodeParameters>
 		</WorkflowNode>
@@ -560,7 +560,7 @@
 			</ConnectionPoints>
 			<ProcessingNodeParameters>
 				<ProcessingNodeParameter Name="FileName" FriendlyName="File Name" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
-				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False"></ProcessingNodeParameter>
+				<ProcessingNodeParameter Name="FileNameSuffix" FriendlyName="File Name Suffix" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="OutputFilenameExport" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">_ITETD</ProcessingNodeParameter>
 				<ProcessingNodeParameter Name="SelectedExporter" FriendlyName="Export Format" Category="1. Output Data" IsAdvanced="False" IntendedPurpose="Unknown" PurposeDetails="" IsValueSet="True" IsHidden="False" IsConfig="False">Mascot Generic Format (*.mgf)</ProcessingNodeParameter>
 			</ProcessingNodeParameters>
 		</WorkflowNode>

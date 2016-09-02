@@ -10,7 +10,7 @@ if __name__ == "__main__":
     except getopt.GetoptError as err:
         print (str(err))
         usage()
-        sys.exit(2)
+        raise
 
     fcc = fcc.Fcc()
 
