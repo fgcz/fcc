@@ -196,6 +196,9 @@ def clean(para):
     }
 
 
+    if sys.argv[5] is 'merge':
+        para['merge'] = True
+
     compose_batch_file(para)
     post_process(para)
     clean(para)
