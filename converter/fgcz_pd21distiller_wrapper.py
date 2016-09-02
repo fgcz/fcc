@@ -41,14 +41,19 @@ import signal
 import tempfile
 
 
+
 def replace_title(spectrumFile, para):
     """
     Goes through all the lines and adapt the TITLE field working for FGCZ
     BFabric mapping.
     Input and Output files are the same.
+    :type para: object
     """
+
     pattern = "(^TITLE=File:).(\"[-_:\.\\a-zA-Z]{3,}\")(;\ Spe.+)$"
     p = re.compile(pattern)
+
+    # the pattern has to be in line with the PD workflow naming
     patternFile = ".*_(FTETD|FTEThcD|FTHCD|ITETD|ITCID|ITHCD|ITEThcD)_.*mgf"
     pFile = re.compile(patternFile)
 
@@ -59,8 +64,11 @@ def replace_title(spectrumFile, para):
 
     try:
         # create an empty file
-        fw0 = open(os.path.normpath(para['outputFile']), 'w')
-        fw0.close()
+        fw = open(os.path.normpath(para['outputFile']), 'w')
+
+        # depends if the mgfs have to be merged or not
+        if para['merge'] is False:
+            fw.close()
     except:
         raise
 
@@ -69,21 +77,26 @@ def replace_title(spectrumFile, para):
         if match_file is None:
             return
 
-        mgf_filename = os.path.normpath(para['outputFile'] \
-            .replace(".mgf", "_{0}.mgf".format(match_file.group(1))))
+        if para['merge'] is False:
+            mgf_filename = os.path.normpath(para['outputFile'].replace(".mgf", "_{0}.mgf".format(match_file.group(1))))
+            print "mgf_filename =", mgf_filename
+            fw = open(mgf_filename, 'w')
 
-        print "mgf_filename =", mgf_filename
-        fw = open(mgf_filename, 'w')
         for line in fr:
             if line.startswith("TITLE="):
                 line = line.strip()
                 match = p.search(line)
-                fw.write("""{0} "{1}" {2}\n""".format(match.group(1), \
-                    para['inputFile'], match.group(3)))
+                fw.write("""{0} "{1}" {2}\n""".format(match.group(1), para['inputFile'], match.group(3)))
             else:
                 fw.write(line)
+
+        if para['merge'] is False:
+            fw.close()
+
     except:
+        print "error in replace title functions"
         raise
+
 
 
 def post_process(para):
@@ -96,11 +109,11 @@ def post_process(para):
 
     # find OutputFile in tempDirectory
     for root, dirs, files in os.walk(os.path.normpath(para['tempPath'])):
-        #count number of mgf files exeeding 10KB
+        # count number of mgf files exeeding 10KB
         for name in files:
             full_path = os.path.join(root, name)
             if name.endswith(para['fileExtension']) \
-                and os.path.getsize(full_path) > 10000:
+                    and os.path.getsize(full_path) > 10000:
                 print
                 print "adding file", name, "for post processing ..."
                 result_mgf_file_list.append(name)
@@ -110,9 +123,12 @@ def post_process(para):
         print full_path
         replace_title(full_path, para)
 
+
 def compose_batch_file(para):
     """
-    composes a Microsoft windows batch file.
+    yes; here we composes a Microsoft windows batch file.
+    the advantage is that the bat file can be processed manually by just double clicking
+    which can be helpful for debugging
     """
 
     pd_batch_command = """
@@ -126,11 +142,11 @@ copy {0} {1}
 """.format(os.path.normpath(para['inputFile']),
            os.path.normpath(para['tempFileName']),
            os.path.normpath(para['pdCmd']),
-           os.path.normpath("c:/FGCZ/fcc/pd/p1352_AllIT_FT_mgfs.pdProcessingWF"),
-           os.path.normpath("c:/FGCZ/fcc/pd/CWF_minimal.pdConsensusWF"))
+           os.path.normpath(para['processingWorkflow']),
+           os.path.normpath(para['consensusWorkflow']))
 
     batch_filename = os.path.normpath("{0}/{1}".format(para['tempPath'], \
-        'pd21_temp.bat'))
+                                                       'pd21_temp.bat'))
 
     try:
         f = open(batch_filename, 'w')
@@ -143,16 +159,29 @@ copy {0} {1}
         print "\tDONE"
     except OSError as e:
         print("{} failed!. {} has NOT been converted. Error {} occured" \
-            .format(pd_batch_command, inputFile, e))
+              .format(pd_batch_command, inputFile, e))
         raise
 
-if __name__ == "__main__":
-    tempDir = None
+
+
+def clean(para):
+    """
+
+    TODO{cp@fgcz.ethz.ch):
+
+    cleans the scratch directory
+    :param para:
+    :return:
+    """
+    pass
+
+
+
     try:
         tempDir = tempfile.mkdtemp("-pd21", dir=os.path.normpath('d:/tmp/'))
     except:
         raise
-    
+
     para = {
         'pdParamFile': sys.argv[1],
         'inputFile': sys.argv[2],
@@ -160,13 +189,21 @@ if __name__ == "__main__":
         'pdCmd': "c:/Program Files/Thermo/Proteome Discoverer Daemon 2.1/System/Release/DiscovererDaemon.exe",
         'tempFileName': os.path.normpath("{0}/temp.raw".format(tempDir)),
         'tempPath': tempDir,
-        'fileExtension': 'mgf'
-        }
+        'fileExtension': 'mgf',
+        'processing_workflow': sys.argv[4],
+        'consensus_workflow': "c:/FGCZ/fcc/pd/CWF_minimal.pdConsensusWF",
+        'merge': False
+    }
 
-    #para['tempFileName']='D:\\tmp\\tmpownkuk-pd21\\temp.raw'
-    #para['tempPath']='D:\\tmp\\tmpownkuk-pd21'
+
     compose_batch_file(para)
     post_process(para)
+    clean(para)
 
     print "python script done."
+
+
+if __name__ == "__main__":
+    main()
+
 # END
