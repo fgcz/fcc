@@ -100,7 +100,7 @@ import logging.handlers
 import hashlib
 
 
-def create_logger(name="fcc", address=("130.60.81.148", 514)):
+def create_logger(name="fcc", address=("130.60.193.21", 514)):
     """
     create a logger object
     """
@@ -120,7 +120,7 @@ logger = create_logger()
 class FgczCrawl(object):
 
 
-    def __init__(self, pattern=None, max_time_diff=None):
+    def __init__(self, pattern=None, max_time_diff=None, min_time_diff=300):
         """
         """
         self.para = {}
@@ -136,7 +136,7 @@ class FgczCrawl(object):
 
         self.regex_list = map(lambda p: re.compile(p), self.pattern_list)
 
-        self.para['min_time_diff'] = 300
+        self.para['min_time_diff'] = min_time_diff
         if not max_time_diff is None:
             self.para['max_time_diff'] = max_time_diff
         else:
@@ -162,8 +162,10 @@ class FgczCrawl(object):
                 res.append(new_path)
 
         
-        res = filter(lambda f: time.time() - os.path.getmtime(f) > self.para[
-                     'min_time_diff'] and time.time() - os.path.getmtime(f) < self.para['max_time_diff'], res)
+	
+	#logger.info("min_time_diff={}".format(self.para['min_time_diff']))
+        res = filter(lambda f: time.time() - os.path.getctime(f) > self.para[
+                     'min_time_diff'] and time.time() - os.path.getctime(f) < self.para['max_time_diff'], res)
         res = filter(lambda f: os.path.getsize(f) >
                      self.para['min_size'] or os.path.isdir(f), res)
 
@@ -309,7 +311,7 @@ def matchFileToRules(fileDetails, rulesList, myHostname=None):
             logger.debug("skipping" + filename + "because of file size is 0.")
             return matchedRules
 
-        timediff = time.time() - os.path.getmtime(filename)
+        timediff = time.time() - os.path.getctime(filename)
 
         # TODO(cp): should be a variable
         if timediff < 300:
@@ -326,6 +328,8 @@ def matchFileToRules(fileDetails, rulesList, myHostname=None):
             regex = re.compile(".*{0}.*".format(rule["keyword"]))
             regex2 = re.compile(".*{0}.*".format(rule["converterDir"]))
 
+  
+
             if (((fileDetails["project"] == rule["project"]) or ('' == rule["project"])) and
                 (fileDetails["omics"] == rule["omics"]) and
                 ((fileDetails["instrument"] == rule["instrument"]) or ('' == rule["instrument"])) and
@@ -333,12 +337,29 @@ def matchFileToRules(fileDetails, rulesList, myHostname=None):
                 (fileDetails["date"] >= rule["beginDate"]) and
                 (fileDetails["date"] <= rule["endDate"]) and
                 (fileDetails["extension"] == rule["fromFileExt"]) and
-                (regex.match(fileDetails["filePath"])) and
-                    (re.search(myHostname, rule["hostname"]))):
-                if (regex2.match(fileDetails["filePath"])):
+                bool(regex.match(fileDetails["filePath"])) and
+                    bool(re.search(myHostname, rule["hostname"]))):
+
+                if (bool(regex2.match(fileDetails["filePath"]))):
                     logger.debug("skipping '" + filename + "' because of recursion warning." + str(
                         rule["converterDir"]) + " is already in the path.")
                     continue
+
+
+                """
+                print filename, timediff, \
+  (fileDetails["project"] == rule["project"] or ('' == rule["project"])), \
+  fileDetails["omics"] == rule["omics"], \
+  ((fileDetails["instrument"] == rule["instrument"]) or ('' == rule["instrument"])), \
+  ((fileDetails["user"] == rule["user"]) or ('' == rule["user"])), \
+  (fileDetails["date"] >= rule["beginDate"]), \
+  (fileDetails["date"] <= rule["endDate"]), \
+  (fileDetails["extension"] == rule["fromFileExt"]), \
+  (bool(regex.match(fileDetails["filePath"])) and bool((re.search(myHostname, rule["hostname"])))), \
+  bool(re.search(myHostname, rule["hostname"])), \
+  bool(regex2.match(fileDetails["filePath"]))
+                """
+         
                 matchedRules.append(rule)
         except:
             pass
@@ -357,7 +378,7 @@ def usage():
 class Fcc:
     """
     """
-    parameters = {'config_url': "http://fgcz-s-021.uzh.ch/config/fcc_config.xml",
+    parameters = {'config_url': "http://fgcz-ms.uzh.ch/config/fcc_config.xml",
                  'crawl_pattern': ['/srv/www/htdocs/Data2San/',
                         'p[0-9]{2,4}', 'Metabolomics',
                         '(GCT)_[0-9]',
@@ -365,7 +386,8 @@ class Fcc:
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
                  'nCPU': None,
                  'max_time_diff': 60 * 60 * 24 * 7 * 4,
-                 'sleepDuration': 300,
+                 'sleepDuration': 600,
+                 'min_time_diff': 300,
                  'loop': False,
                  'exec': False}
 
@@ -435,8 +457,11 @@ class Fcc:
         fileDir = os.path.dirname(file)
         fileDetails = getDetailsFromFilePath(file)
 
+        # print self.myHostname, fileDetails
          
         matchingRules = matchFileToRules(fileDetails, self.rulesList, myHostname=self.myHostname)
+
+        #print matchingRules
 
         if len(matchingRules) > 0:
             logger.debug(
@@ -464,6 +489,7 @@ class Fcc:
                                         os.path.basename(file))[0],
                                         mrule["toFileExt"]))
 
+                # print "DEBUG", toFileName
                 if not os.path.exists(toFileName):
                     if mrule["project"] in countDict:
                         countDict[mrule["project"]] = countDict[
@@ -473,6 +499,7 @@ class Fcc:
 
                     candCmdLine = createSystemBatch(
                         file, toFileName, mrule)
+
                     checksum = hashlib.md5()
                     checksum.update(candCmdLine.encode("utf-8"))
                     candCmdLineMD5 = checksum.hexdigest()
@@ -490,7 +517,7 @@ class Fcc:
 
         :return:
         """
-        crawler = FgczCrawl(pattern=self.parameters['crawl_pattern'], max_time_diff=self.parameters['max_time_diff'])
+        crawler = FgczCrawl(pattern=self.parameters['crawl_pattern'], max_time_diff=self.parameters['max_time_diff'], min_time_diff=self.parameters['min_time_diff'])
 
         if not os.path.exists(os.path.normpath(self.parameters['crawl_pattern'][0])):
             logger.error("{0} does not exsist.".format(self.parameters('crawl_pattern')[0]))
@@ -519,8 +546,10 @@ class Fcc:
             sys.exit(1)
 
         while True:
+            logger.info("number of pending jobs in queue is {}.".format(len(self.pool._cache.keys())))
             self.rulesList = self.read_config(self.parameters['config_url'])
             logger.debug("found {0} rules in {1}".format(len(self.rulesList), self.parameters['config_url']))
+
 
 
             logger.info("computing rule versus file matching ...")
