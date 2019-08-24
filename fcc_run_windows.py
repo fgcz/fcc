@@ -1,7 +1,7 @@
 
 import getopt
 import sys
-import fcc
+from fgcz import fcc
 
 if __name__ == "__main__":
     try:
