@@ -12,7 +12,7 @@ The specification/properties of the program are as follow:
 
 # Install
 1. use python version 3.7 or higher
-2. `pip3 install PyFGCZ`
+2. see https://pypi.org/project/PyFGCZ/ and run `pip3 install PyFGCZ`
 3. adapt the fcc_run.py script to your needs.
 
 # Synopsis
