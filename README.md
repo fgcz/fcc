@@ -10,6 +10,12 @@ The specification/properties of the program are as follow:
 - configurable through xml file which means new converter by new tag in xml file NO CODE CHANGE!
 - stdout and errout through syslog 
 
+# Install
+0. use python version 3.7 or higher
+1. clone https://github.com/fgcz/PyFGCZ
+2. `cd PyFGCZ && python3 setup.py sdist && pip3 install dist/*z`
+3. adapt the fcc_run.py script to your needs.
+
 # Synopsis
 ## on Microsoft OS
 ```
