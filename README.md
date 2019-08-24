@@ -11,9 +11,8 @@ The specification/properties of the program are as follow:
 - stdout and errout through syslog 
 
 # Install
-0. use python version 3.7 or higher
-1. clone https://github.com/fgcz/PyFGCZ
-2. `cd PyFGCZ && python3 setup.py sdist && pip3 install dist/*z`
+1. use python version 3.7 or higher
+2. `pip3 install PyFGCZ`
 3. adapt the fcc_run.py script to your needs.
 
 # Synopsis
