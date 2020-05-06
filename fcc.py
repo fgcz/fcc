@@ -162,6 +162,7 @@ class FgczCrawl(object):
         
 	
 	#logger.info("min_time_diff={}".format(self.para['min_time_diff']))
+        res = filter(lambda f: os.path.isfile(f) or os.path.isdir(f), res)
         try:
             res = filter(lambda f: time.time() - os.path.getctime(f) > self.para[
                      'min_time_diff'] and time.time() - os.path.getctime(f) < self.para['max_time_diff'], res)
