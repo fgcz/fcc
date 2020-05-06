@@ -54,7 +54,6 @@ AUTHOR
     Simon Barkow-Oesterreicher and Christian Panse <cp@fgcz.ethz.ch>
 
 SEE ALSO
-    https://github.com/fgcz/fcc
     doi:10.1186/1751-0473-8-3
 
 HISTORY
@@ -79,11 +78,12 @@ HISTORY
     2012-06-28 switched to os.walk for the crawler methode (CP)
     2012-12-04 handles dirs as files, e.g. conversion of waters.com instruments raw folders (SB,CP)
     2015-07-07 on github.com
+    2019-08-23 python3 / file time / report pending jobs in queue 
 """
-__version__ = "https://github.com/fgcz/fcc"
+__version__ = "https://github.com/fgcz/PyFGCZ"
 
 import os
-import urllib
+from urllib.request import urlopen
 import signal
 import platform
 import socket
@@ -98,6 +98,7 @@ import multiprocessing
 import logging
 import logging.handlers
 import hashlib
+import tempfile
 
 
 def create_logger(name="fcc", address=("130.60.193.21", 514)):
@@ -112,14 +113,11 @@ def create_logger(name="fcc", address=("130.60.193.21", 514)):
     logger.setLevel(20)
     logger.addHandler(syslog_handler)
 
-
     return logger
 
 logger = create_logger()
 
 class FgczCrawl(object):
-
-
     def __init__(self, pattern=None, max_time_diff=None, min_time_diff=300):
         """
         """
@@ -134,7 +132,7 @@ class FgczCrawl(object):
                                  '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]+){0,1}',
                                  '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)$']
 
-        self.regex_list = map(lambda p: re.compile(p), self.pattern_list)
+        self.regex_list = list(map(lambda p: re.compile(p), self.pattern_list))
 
         self.para['min_time_diff'] = min_time_diff
         if not max_time_diff is None:
@@ -144,12 +142,12 @@ class FgczCrawl(object):
         self.para['min_size'] = 100 * 1024  # 100K Bytes
 
     def dfs_(self, path, idx):
-        res = []
+        res = list()
 
         try:
             file_list = os.listdir(path)
         except:
-            print path
+            print (path)
             res
 
         file_list = filter(self.regex_list[idx].match, file_list)
@@ -157,20 +155,28 @@ class FgczCrawl(object):
         for f in file_list:
             new_path = os.path.normpath("{0}/{1}".format(path, f))
             if os.path.isdir(new_path) and idx < len(self.regex_list) - 1:
-                res = res + self.dfs_(new_path, idx + 1)
+                res.extend(self.dfs_(new_path, idx + 1))
             elif os.path.exists(new_path):
                 res.append(new_path)
 
         
 	
 	#logger.info("min_time_diff={}".format(self.para['min_time_diff']))
-        res = filter(lambda f: time.time() - os.path.getctime(f) > self.para[
+        try:
+            res = filter(lambda f: time.time() - os.path.getctime(f) > self.para[
                      'min_time_diff'] and time.time() - os.path.getctime(f) < self.para['max_time_diff'], res)
-        res = filter(lambda f: os.path.getsize(f) >
-                     self.para['min_size'] or os.path.isdir(f), res)
+        except:
+            print("DEBUG filter1: {}".format(sys.exc_info()[0]))
+            raise		
 
-        
-        return res
+        try:
+            res = filter(lambda f: os.path.getsize(f) >
+                     self.para['min_size'] or os.path.isdir(f), res)
+        except:
+            print("DEBUG filter2: {}".format(sys.exc_info()[0]))
+            raise		
+
+        return list(res)
 
     @property
     def run(self):
@@ -183,14 +189,21 @@ class FgczCrawl(object):
         tStart = time.time()
         logger.info("crawling for files ...")
         files = self.dfs_(os.path.normpath(self.pattern_list[0]), 1)
-        logger.info("crawling done|time={0:.2f} seconds.".format(time.time() - tStart))
-        logger.debug("found {0} files in {1}.".format(len(files), self.pattern_list[0]))
+        logger.info("crawling done|time={0:.2f} seconds|#files={nf}.".format(time.time() - tStart, nf=len(files)))
+        # logger.debug("found {0} files in {1}.".format(len(files), self.pattern_list[0]))
 
         return files
 
-
-
 def signal_handler(signal, frame):
+    pidfile = "{0}/fcc.pid".format(tempfile.gettempdir())
+
+    if os.path.isfile(pidfile):
+        try:
+            os.remove(pidfile)
+            logger.info("removed pid file '{}'.".format(pidfile))
+        except:
+            pass
+
     logger.error("sys exit 1; signal={0}; frame={1}".format(signal, frame))
     sys.exit(1)
 
@@ -425,10 +438,13 @@ class Fcc:
 
         try:
             logger.info("trying to open '{0}' ... ".format(url))
-            config_xml = urllib.urlopen(url).read()
 
+		
+            config_xml = urlopen(url).read()
             fccConfigXml = xml.dom.minidom.parseString(config_xml)
+
             logger.info("read {0} ... ".format(url))
+
         except:
             logger.error("The XML config file is missing or malformed. Error: ")
             logger.error(sys.exc_info()[1])
@@ -557,9 +573,12 @@ class Fcc:
 
             """TODO(cp):
             regex = re.compile(myPattern)
-            FILES = filter(lambda p: regex.match(p), FILES)
+            FILES = list(filter(lambda p: regex.match(p), FILES))
             """
-            map(lambda x: self.process(x), crawler.run)
+
+            #map(lambda x: self.process(x), ffff)
+            for f in crawler.run:
+                self.process(f)
 
             logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
 
@@ -573,7 +592,7 @@ class Fcc:
                 logger.info(msg)
 
             if not self.parameters['loop']:
-		return
+                return(True)
 
             logger.info("sleeping||for {0} seconds ...".format(self.parameters['sleepDuration']))
             time.sleep(self.parameters['sleepDuration'])
@@ -587,8 +606,8 @@ if __name__ == "__main__":
     try:
         import yaml
         fcc = Fcc()
-        print yaml.dump(fcc.read_config(url='http://fgcz-data.uzh.ch/config/fcc_config.xml'))
+        print(yaml.dump(fcc.read_config(url='http://fgcz-data.uzh.ch/config/fcc_config.xml')))
     except:
-        print "yaml does not seems to run. exit"
+        print("yaml does not seems to run. exit")
         pass
     
