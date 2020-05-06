@@ -7,6 +7,10 @@ ZIP=/usr/bin/zip
 test -x $ZIP || { echo "zip not available"; exit 1; }
 
 
+echo "waters zip is sleeping for 2 seconds ..."
+sleep 2
+echo "waters zip continues!"
+
 if [ -d $my_source ];
 then
 	mkdir -p `dirname $my_target` || { echo "ERROR: could not make `dirname $my_target`"; exit 1; }

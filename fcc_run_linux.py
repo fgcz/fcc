@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 import getopt
 import sys
@@ -47,7 +48,7 @@ if __name__ == "__main__":
         elif o == "--pattern":
             fcc.set_para('myPattern', value)
         elif o == "--hostname":
-            myHostname = value
+            fcc.set_para('hostname', value)
         elif o == "--ncpu":
             fcc.set_para('ncpu',  int(value))
         elif o in ("--help"):
