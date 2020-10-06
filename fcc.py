@@ -584,10 +584,10 @@ class Fcc:
             logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
 
             if not self.parameters['exec']:
-                with open(self.parameters['myOutputFile'], 'a') as f:
-                    map(lambda cmd: f.write("{0}\n".format(self.processedCmdMD5Dict[cmd])), self.processedCmdMD5Dict.keys())
+                with open(self.parameters['myOutputFile'], 'w') as f:
+                    f.write("\n".join(self.processedCmdMD5Dict.values()))
 
-                msg = "wrote {0} lines to file to '{1}'.".format(len(self.processedCmdMD5Dict.keys()),
+                msg = "wrote {0} lines to file '{1}'.".format(len(self.processedCmdMD5Dict.keys()),
                                                                self.parameters['myOutputFile'])
                 print(msg)
                 logger.info(msg)
