@@ -10,6 +10,13 @@ timstof_zip(){
   local source_dir="$1"
   local output_zip_file="$2"
 
+  if [[ -f ${output_zip_file} ]];
+  then
+	  echo "output zip already existing"
+	  ls -l ${output_zip_file}
+	  return
+  fi
+
   if [ -d ${source_dir} ];
   then
   	mkdir -p `dirname ${output_zip_file}` || { echo "ERROR: could not make `dirname $output_zip_file`"; exit 1; }
