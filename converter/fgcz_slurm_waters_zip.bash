@@ -1,13 +1,13 @@
 #!/bin/bash
 # Witold E. Wolski <wew@fgcz.ethz.ch> 2015-07-08
 # Christian Panse <cp@fgcz.ethz.ch> 2025-10-27
-#SBATCH --mem-per-cpu=4096M
-#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=1024M
+#SBATCH --cpus-per-task=1
 #SBATCH -N 1 # count of nodes                   
 #SBATCH -n 1 # cpu count / number of tasks
 #SBATCH --partition=zip
 #SBATCH --nodelist=fgcz-r-035
-#SBATCH --job-name=rawrr
+#SBATCH --job-name=water
 #SBATCH -o /tmp/slurm.%x.%j.out
 #SBATCH -e /tmp/slurm.%x.%j.err
 
@@ -16,8 +16,6 @@ my_source=$1
 my_target=$2
 ZIP=/usr/bin/zip
 test -x $ZIP || { echo "zip not available"; exit 1; }
-
-
 
 
 if [ -d $my_source ];

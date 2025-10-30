@@ -2,10 +2,10 @@
 # Christian Panse <cp@fgcz.ethz.ch>
 #
 #SBATCH --mem-per-cpu=4096M
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=16
 #SBATCH -N 1 # count of nodes                   
 #SBATCH -n 1 # cpu count / number of tasks
-#SBATCH --partition=fcc
+#SBATCH --partition=prx
 #SBATCH --nodelist=fgcz-c-072
 #SBATCH --job-name=rawrr
 #SBATCH -o /tmp/slurm.%x.%j.out
