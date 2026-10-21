@@ -7,15 +7,18 @@ ZIP=/usr/bin/zip
 test -x $ZIP || { echo "zip not available"; exit 1; }
 
 
-echo "waters zip is sleeping for 2 seconds ..."
-sleep 2
-echo "waters zip continues!"
+
 
 if [ -d $my_source ];
 then
+	[[ $(/bin/ls ${my_source} | /usr/bin/wc -l) -eq 0 ]] && { echo "Warning: empty directory ${my_source} done."; exit 0; }
+
+	echo "waters zip is sleeping for 2 seconds ..."
+	sleep 2
+	echo "waters zip continues!"
+
 	mkdir -p `dirname $my_target` || { echo "ERROR: could not make `dirname $my_target`"; exit 1; }
 
-	test `/bin/ls $my_source | /usr/bin/wc -l` -gt 0  || { echo "Warning; no files exit 0."; exit 0; }
 
 	cd $my_source/.. \
 	&& ls -l \
