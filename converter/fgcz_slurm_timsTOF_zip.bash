@@ -8,9 +8,13 @@
 #SBATCH -n 1 # cpu count / number of tasks
 #SBATCH --partition=zip
 #SBATCH --nodelist=fgcz-r-035
-#SBATCH --job-name=timsTOF
+#SBATCH --job-name="timsTOF-zipper"
 #SBATCH -o /tmp/slurm.%x.%j.out
 #SBATCH -e /tmp/slurm.%x.%j.err
+
+## TODO(cp):
+# srun -p prx --nodelist=fgcz-r-038 /src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $1
+
 
 declare -r ZIP_OPTIONS="-0 -@ -m"
 
@@ -44,6 +48,11 @@ timstof_zip(){
   fi
 }
 
+echo "sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2" >> /tmp/qcqcqcqc.log
+sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2
+
 timstof_zip $1 $2
+
+
 exit 0
 
