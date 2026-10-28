@@ -59,14 +59,14 @@ if __name__ == "__main__":
             sys.exit(1)
 
     crawl_pattern = ['/srv/www/htdocs/Data2San/',
-        'p[0-9]{2,4}', '(Proteomics|Metabolomics)',
-        '(TIMSTOF|EXPLORIS|QEXACTIVEHF|FUSION|QEXACTIVEHFX|LUMOS|QDA|GCT|G2HD|G2SI)_[0-9]',
+        'p[0-9]{2,6}', '(Proteomics|Metabolomics)',
+        '(RAPIFLEXIMG|TIMSTOFULTRA|TIMSTOF|TIMSTOFFLEX|TIMSTOFFLEXIMG|ASCEND|ASTRAL|EXPLORIS|QEXACTIVEHF|FUSION|QEXACTIVEHFX|LUMOS|QDA|GCT|G2HD|G2SI)_[0-9]',
         '[a-z]{2,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
         '[-a-zA-Z0-9_]+.(d|raw|RAW|wiff|wiff\.scan)']
 
     fcc.set_para('crawl_pattern', crawl_pattern)
-    fcc.set_para('min_time_diff', 3600)
-    fcc.set_para('max_time_diff', 3600 * 24 * 30 * 6)
+    fcc.set_para('min_time_diff', 3600 * 2)
+    fcc.set_para('max_time_diff', 3600 * 24 * 20)
 
     fcc.run()
     unlink_pidfile()

@@ -101,7 +101,7 @@ import hashlib
 import tempfile
 
 
-def create_logger(name="fcc", address=("130.60.193.21", 514)):
+def create_logger(name="fcc", address=("130.60.193.35", 514)):
     """
     create a logger object
     """
@@ -145,27 +145,26 @@ class FgczCrawl(object):
         res = list()
 
         try:
-            file_list = os.listdir(path)
+            file_list0 = os.listdir(path)
         except:
             print (path)
-            res
+            raise("can not list dir")
 
-        file_list = filter(self.regex_list[idx].match, file_list)
+        file_list1 = list(filter(self.regex_list[idx].match, file_list0))
 
-        for f in file_list:
+        for f in file_list1:
             new_path = os.path.normpath("{0}/{1}".format(path, f))
             if os.path.isdir(new_path) and idx < len(self.regex_list) - 1:
                 res.extend(self.dfs_(new_path, idx + 1))
             elif os.path.exists(new_path):
                 res.append(new_path)
-
         
-	
+        
 	#logger.info("min_time_diff={}".format(self.para['min_time_diff']))
-        res = filter(lambda f: os.path.isfile(f) or os.path.isdir(f), res)
+        res = list(filter(lambda f: os.path.isfile(f) or os.path.isdir(f), res))
         try:
-            res = filter(lambda f: time.time() - os.path.getctime(f) > self.para[
-                     'min_time_diff'] and time.time() - os.path.getctime(f) < self.para['max_time_diff'], res)
+            res = list(filter(lambda f: time.time() - os.path.getctime(f) > self.para[
+                     'min_time_diff'] and time.time() - os.path.getctime(f) < self.para['max_time_diff'], res))
         except:
             print("DEBUG filter1: {}".format(sys.exc_info()[0]))
             raise		
@@ -394,7 +393,7 @@ class Fcc:
     """
     parameters = {'config_url': "http://fgcz-ms.uzh.ch/config/fcc_config.xml",
                  'crawl_pattern': ['/srv/www/htdocs/Data2San/',
-                        'p[0-9]{2,4}', 'Metabolomics',
+                        'p[0-9]{2,5}', 'Metabolomics',
                         '(GCT)_[0-9]',
                         '[a-z]{3,18}_[0-9]{8}(_[-a-zA-Z0-9_]{0,100}){0,1}',
                         '[-a-zA-Z0-9_]+.(raw|RAW|wiff|wiff\.scan)'],
@@ -579,6 +578,7 @@ class Fcc:
 
             #map(lambda x: self.process(x), ffff)
             for f in crawler.run:
+                #print(f)
                 self.process(f)
 
             logger.info("matching done|time={0:.2f} seconds.".format(time.time() - tStart))
@@ -607,7 +607,7 @@ if __name__ == "__main__":
     try:
         import yaml
         fcc = Fcc()
-        print(yaml.dump(fcc.read_config(url='http://fgcz-data.uzh.ch/config/fcc_config.xml')))
+        print(yaml.dump(fcc.read_config(url='https://fgcz-data.uzh.ch/config/fcc_config.xml')))
     except:
         print("yaml does not seems to run. exit")
         pass

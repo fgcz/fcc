@@ -1,5 +1,6 @@
 #!/bin/bash
 # Christian Panse <cp@fgcz.ethz.ch>
+# 20261028 JG/CP
 
 
 #SBATCH --mem-per-cpu=1024M
@@ -48,10 +49,10 @@ timstof_zip(){
   fi
 }
 
-echo "sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2" >> /tmp/qcqcqcqc.log
-sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2
 
 timstof_zip $1 $2
+echo "$(date) sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2" >> /tmp/timsTOFzip.debug.log
+sbatch /home/cpanse/src/gitlab.bfabric.org/proteomics/qc/inst/reports/tims_qc_multi/fgcz_slurm_timsTOF_qc_report.bash $2
 
 
 exit 0
